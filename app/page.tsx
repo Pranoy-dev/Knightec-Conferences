@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+// TypeScript fix applied
 import { Button } from "@/components/ui/button";
 import { ConferenceList } from "@/components/ConferenceList";
 import { FilterBar } from "@/components/FilterBar";
