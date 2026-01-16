@@ -85,7 +85,7 @@ export default function Home() {
   const uniqueStatuses = useMemo(() => {
     const statuses = conferences
       .map((c) => c.status)
-      .filter((s): s is string => s !== null);
+      .filter((s): s is "Interested" | "Planned" | "Booked" | "Attended" => s !== null);
     return [...new Set(statuses)];
   }, [conferences]);
 
