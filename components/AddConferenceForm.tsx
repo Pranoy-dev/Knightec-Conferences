@@ -32,6 +32,12 @@ const STATUS_OPTIONS = [
   { value: "Attended", label: "Attended" },
 ] as const;
 
+interface AddConferenceFormProps {
+  people: Person[];
+  onSuccess?: () => void;
+  onCancel?: () => void;
+}
+
 export function AddConferenceForm({ people, onSuccess, onCancel }: AddConferenceFormProps) {
   const [categories, setCategories] = useState<Category[]>([]);
 
