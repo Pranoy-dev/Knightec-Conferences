@@ -151,13 +151,17 @@ export function AddConferenceForm({ people, onSuccess, onCancel }: AddConference
                   </FormControl>
                   <SelectContent>
                     {categories.length === 0 ? (
-                      <SelectItem value="" disabled>No categories available. Add one first.</SelectItem>
+                      <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                        No categories available. Add one first.
+                      </div>
                     ) : (
-                      categories.map((category) => (
-                        <SelectItem key={category.id} value={category.name}>
-                          {category.name}
-                        </SelectItem>
-                      ))
+                      categories
+                        .filter((category) => category.name && category.name.trim() !== "")
+                        .map((category) => (
+                          <SelectItem key={category.id} value={category.name}>
+                            {category.name}
+                          </SelectItem>
+                        ))
                     )}
                   </SelectContent>
                 </Select>
