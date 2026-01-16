@@ -20,16 +20,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createConference } from "@/lib/db";
+import { createConference, getAllCategories } from "@/lib/db";
 import { toast } from "sonner";
-import type { Person } from "@/types";
-import { useEffect } from "react";
-
-interface AddConferenceFormProps {
-  people: Person[];
-  onSuccess?: () => void;
-  onCancel?: () => void;
-}
+import type { Person, Category } from "@/types";
+import { useEffect, useState } from "react";
 
 const STATUS_OPTIONS = [
   { value: "Interested", label: "Interested" },
@@ -39,6 +33,8 @@ const STATUS_OPTIONS = [
 ] as const;
 
 export function AddConferenceForm({ people, onSuccess, onCancel }: AddConferenceFormProps) {
+  const [categories, setCategories] = useState<Category[]>([]);
+
   const form = useForm<ConferenceFormValues>({
     resolver: zodResolver(conferenceSchema),
     defaultValues: {
@@ -54,6 +50,18 @@ export function AddConferenceForm({ people, onSuccess, onCancel }: AddConference
       status: undefined,
     },
   });
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const cats = await getAllCategories();
+        setCategories(cats);
+      } catch (error) {
+        console.error("Failed to load categories:", error);
+      }
+    };
+    loadCategories();
+  }, []);
 
   useEffect(() => {
     if (people.length === 0) {
@@ -129,9 +137,24 @@ export function AddConferenceForm({ people, onSuccess, onCancel }: AddConference
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Category *</FormLabel>
-                <FormControl>
-                  <Input placeholder="Technology" {...field} />
-                </FormControl>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {categories.length === 0 ? (
+                      <SelectItem value="" disabled>No categories available. Add one first.</SelectItem>
+                    ) : (
+                      categories.map((category) => (
+                        <SelectItem key={category.id} value={category.name}>
+                          {category.name}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
@@ -270,7 +293,7 @@ export function AddConferenceForm({ people, onSuccess, onCancel }: AddConference
               Cancel
             </Button>
           )}
-          <Button type="submit" disabled={form.formState.isSubmitting}>
+          <Button type="submit" disabled={form.formState.isSubmitting} className="text-white">
             {form.formState.isSubmitting ? "Saving..." : "Save"}
           </Button>
         </div>

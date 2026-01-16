@@ -2,7 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { personSchema, type PersonFormValues } from "@/lib/validations";
+import { z } from "zod";
 import {
   Form,
   FormControl,
@@ -13,31 +13,36 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { createPerson } from "@/lib/db";
+import { createCategory } from "@/lib/db";
 import { toast } from "sonner";
 
-interface AddPersonFormProps {
+const categorySchema = z.object({
+  name: z.string().min(1, "Category name is required").max(100, "Category name is too long"),
+});
+
+type CategoryFormValues = z.infer<typeof categorySchema>;
+
+interface AddCategoryFormProps {
   onSuccess?: () => void;
   onCancel?: () => void;
 }
 
-export function AddPersonForm({ onSuccess, onCancel }: AddPersonFormProps) {
-  const form = useForm<PersonFormValues>({
-    resolver: zodResolver(personSchema),
+export function AddCategoryForm({ onSuccess, onCancel }: AddCategoryFormProps) {
+  const form = useForm<CategoryFormValues>({
+    resolver: zodResolver(categorySchema),
     defaultValues: {
       name: "",
-      email: "",
     },
   });
 
-  const onSubmit = async (data: PersonFormValues) => {
+  const onSubmit = async (data: CategoryFormValues) => {
     try {
-      await createPerson(data);
-      toast.success("Person added successfully!");
+      await createCategory(data);
+      toast.success("Category added successfully!");
       form.reset();
       onSuccess?.();
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to add person";
+      const errorMessage = error instanceof Error ? error.message : "Failed to add category";
       toast.error(errorMessage);
     }
   };
@@ -50,23 +55,9 @@ export function AddPersonForm({ onSuccess, onCancel }: AddPersonFormProps) {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name *</FormLabel>
+              <FormLabel>Category Name *</FormLabel>
               <FormControl>
-                <Input placeholder="John Doe" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email *</FormLabel>
-              <FormControl>
-                <Input type="email" placeholder="john@example.com" {...field} />
+                <Input placeholder="Technology" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

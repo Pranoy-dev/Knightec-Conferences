@@ -178,6 +178,7 @@ export default function Home() {
         people={people}
         onPersonAdded={loadData}
         onConferenceAdded={loadData}
+        onCategoryAdded={loadData}
       />
     </div>
   );

@@ -11,7 +11,8 @@ import {
 } from "@/components/ui/dialog";
 import { AddConferenceForm } from "./AddConferenceForm";
 import { AddPersonForm } from "./AddPersonForm";
-import { Plus, X, Users, Calendar } from "lucide-react";
+import { AddCategoryForm } from "./AddCategoryForm";
+import { Plus, X, Users, Calendar, Tag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Person } from "@/types";
 
@@ -19,16 +20,19 @@ interface FloatingActionButtonProps {
   people: Person[];
   onPersonAdded?: () => void;
   onConferenceAdded?: () => void;
+  onCategoryAdded?: () => void;
 }
 
 export function FloatingActionButton({
   people,
   onPersonAdded,
   onConferenceAdded,
+  onCategoryAdded,
 }: FloatingActionButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [showPersonForm, setShowPersonForm] = useState(false);
   const [showConferenceForm, setShowConferenceForm] = useState(false);
+  const [showCategoryForm, setShowCategoryForm] = useState(false);
 
   const handlePersonClick = () => {
     setIsOpen(false);
@@ -40,6 +44,11 @@ export function FloatingActionButton({
     setShowConferenceForm(true);
   };
 
+  const handleCategoryClick = () => {
+    setIsOpen(false);
+    setShowCategoryForm(true);
+  };
+
   const handlePersonSuccess = () => {
     setShowPersonForm(false);
     onPersonAdded?.();
@@ -48,6 +57,11 @@ export function FloatingActionButton({
   const handleConferenceSuccess = () => {
     setShowConferenceForm(false);
     onConferenceAdded?.();
+  };
+
+  const handleCategorySuccess = () => {
+    setShowCategoryForm(false);
+    onCategoryAdded?.();
   };
 
   const handleToggle = (e: React.MouseEvent) => {
@@ -92,6 +106,15 @@ export function FloatingActionButton({
           >
             <Calendar className="h-5 w-5 text-white" />
             <span className="font-semibold text-white">Add Conference</span>
+          </Button>
+          <Button
+            onClick={handleCategoryClick}
+            size="lg"
+            className="h-14 px-6 shadow-xl rounded-full gap-3 animate-in slide-in-from-bottom-2 hover:shadow-2xl transition-shadow bg-black text-white hover:bg-black/90"
+            style={{ animationDelay: isOpen ? "0.3s" : "0s" }}
+          >
+            <Tag className="h-5 w-5 text-white" />
+            <span className="font-semibold text-white">Add Category</span>
           </Button>
         </div>
 
@@ -145,6 +168,22 @@ export function FloatingActionButton({
             people={people}
             onSuccess={handleConferenceSuccess}
             onCancel={() => setShowConferenceForm(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Category Form Dialog */}
+      <Dialog open={showCategoryForm} onOpenChange={setShowCategoryForm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Category</DialogTitle>
+            <DialogDescription>
+              Add a new category for conferences.
+            </DialogDescription>
+          </DialogHeader>
+          <AddCategoryForm
+            onSuccess={handleCategorySuccess}
+            onCancel={() => setShowCategoryForm(false)}
           />
         </DialogContent>
       </Dialog>

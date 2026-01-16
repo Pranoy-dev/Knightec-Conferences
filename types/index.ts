@@ -44,6 +44,17 @@ export type PersonFormData = {
   email: string;
 };
 
+export type Category = {
+  id: string;
+  name: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type CategoryFormData = {
+  name: string;
+};
+
 export type ConferenceFilters = {
   category?: string;
   location?: string;

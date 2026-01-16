@@ -4,10 +4,10 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PeopleList } from "@/components/PeopleList";
-import { deletePerson, deleteConference, getAllPeople, getAllConferences } from "@/lib/db";
-import type { Person, Conference } from "@/types";
+import { deletePerson, deleteConference, getAllPeople, getAllConferences, getAllCategories, deleteCategory } from "@/lib/db";
+import type { Person, Conference, Category } from "@/types";
 import { toast } from "sonner";
-import { ArrowLeft, Users, Calendar } from "lucide-react";
+import { ArrowLeft, Users, Calendar, Tag } from "lucide-react";
 import Link from "next/link";
 import {
   Table,
@@ -35,17 +35,20 @@ import { Trash2 } from "lucide-react";
 export default function DataPage() {
   const [people, setPeople] = useState<Person[]>([]);
   const [conferences, setConferences] = useState<Conference[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
   const loadData = async () => {
     try {
       setLoading(true);
-      const [peopleData, conferencesData] = await Promise.all([
+      const [peopleData, conferencesData, categoriesData] = await Promise.all([
         getAllPeople(),
         getAllConferences(),
+        getAllCategories(),
       ]);
       setPeople(peopleData);
       setConferences(conferencesData);
+      setCategories(categoriesData);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Failed to load data";
       toast.error(errorMessage);
@@ -97,6 +100,31 @@ export default function DataPage() {
     return conferences.filter((c) => c.assigned_to === personId).length;
   };
 
+  const getCategoryUsageCount = (categoryName: string) => {
+    return conferences.filter((c) => c.category === categoryName).length;
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    try {
+      const category = categories.find((c) => c.id === id);
+      if (!category) return;
+      
+      const usageCount = getCategoryUsageCount(category.name);
+      if (usageCount > 0) {
+        toast.error(
+          `Cannot delete category. It is being used by ${usageCount} conference(s). Please reassign or delete those conferences first.`
+        );
+        return;
+      }
+      await deleteCategory(id);
+      toast.success("Category deleted successfully");
+      loadData();
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to delete category";
+      toast.error(errorMessage);
+    }
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto p-6">
@@ -119,14 +147,14 @@ export default function DataPage() {
         <div className="space-y-2">
           <h1 className="text-4xl font-bold tracking-tight">Data Management</h1>
           <p className="text-muted-foreground text-base">
-            Manage people and conferences
+            Manage people, conferences, and categories
           </p>
         </div>
       </div>
 
       {/* Tabs */}
       <Tabs defaultValue="people" className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
+        <TabsList className="grid w-full max-w-2xl grid-cols-3">
           <TabsTrigger value="people" className="gap-2">
             <Users className="h-4 w-4" />
             People ({people.length})
@@ -134,6 +162,10 @@ export default function DataPage() {
           <TabsTrigger value="conferences" className="gap-2">
             <Calendar className="h-4 w-4" />
             Conferences ({conferences.length})
+          </TabsTrigger>
+          <TabsTrigger value="categories" className="gap-2">
+            <Tag className="h-4 w-4" />
+            Categories ({categories.length})
           </TabsTrigger>
         </TabsList>
 
@@ -290,6 +322,81 @@ export default function DataPage() {
                   </TableBody>
                 </Table>
               </div>
+            </div>
+          )}
+        </TabsContent>
+
+        {/* Categories Tab */}
+        <TabsContent value="categories" className="space-y-4 mt-6">
+          {categories.length === 0 ? (
+            <div className="text-center py-12 border rounded-lg">
+              <Tag className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">No categories added yet</p>
+            </div>
+          ) : (
+            <div className="border rounded-lg overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Used in Conferences</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {categories.map((category) => {
+                    const usageCount = getCategoryUsageCount(category.name);
+                    return (
+                      <TableRow key={category.id}>
+                        <TableCell className="font-medium">{category.name}</TableCell>
+                        <TableCell>
+                          <Badge variant={usageCount > 0 ? "default" : "secondary"}>
+                            {usageCount}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Category</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete "{category.name}"?
+                                  {usageCount > 0 && (
+                                    <span className="block mt-2 text-destructive font-medium">
+                                      Warning: This category is used by {usageCount} conference
+                                      {usageCount !== 1 ? "s" : ""}. You cannot delete it until it is no longer in use.
+                                    </span>
+                                  )}
+                                  {usageCount === 0 && " This action cannot be undone."}
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleDeleteCategory(category.id)}
+                                  disabled={usageCount > 0}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
             </div>
           )}
         </TabsContent>

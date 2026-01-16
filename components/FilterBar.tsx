@@ -52,31 +52,48 @@ export function FilterBar({
   const hasActiveFilters = Object.keys(filters).length > 0;
   const activeFilterCount = Object.keys(filters).length;
 
+  const handleToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsOpen(!isOpen);
+  };
+
+  const handleMouseEnter = () => {
+    setIsOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsOpen(false);
+  };
+
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
-      <div className="border rounded-lg bg-card shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-        <CollapsibleTrigger asChild>
-          <button
-            type="button"
-            className="w-full flex items-center justify-between p-4 h-auto hover:bg-accent/50 transition-colors rounded-md text-sm font-medium cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-          >
-            <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4" />
-              <span className="font-medium">Filters</span>
-              {activeFilterCount > 0 && (
-                <Badge variant="secondary" className="ml-2">
-                  {activeFilterCount}
-                </Badge>
-              )}
-            </div>
-            <ChevronDown
-              className={cn(
-                "h-4 w-4 transition-transform duration-300 ease-in-out",
-                isOpen && "rotate-180"
-              )}
-            />
-          </button>
-        </CollapsibleTrigger>
+      <div 
+        className="border rounded-lg bg-card shadow-sm hover:shadow-md transition-shadow overflow-hidden"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        <button
+          type="button"
+          onClick={handleToggle}
+          className="w-full flex items-center justify-between p-4 h-auto transition-all duration-200 rounded-md text-sm font-medium cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 hover:shadow-sm"
+        >
+          <div className="flex items-center gap-2">
+            <Filter className="h-4 w-4" />
+            <span className="font-medium">Filters</span>
+            {activeFilterCount > 0 && (
+              <Badge variant="secondary" className="ml-2">
+                {activeFilterCount}
+              </Badge>
+            )}
+          </div>
+          <ChevronDown
+            className={cn(
+              "h-4 w-4 transition-transform duration-300 ease-in-out",
+              isOpen && "rotate-180"
+            )}
+          />
+        </button>
 
         <CollapsibleContent className="overflow-hidden transition-all duration-300 ease-in-out data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
           <div className="px-4 pb-5 space-y-5 pt-2">

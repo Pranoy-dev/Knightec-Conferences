@@ -1,5 +1,5 @@
 import { getSupabaseClient } from "./supabase";
-import type { Person, Conference, ConferenceFormData, PersonFormData } from "@/types";
+import type { Person, Conference, ConferenceFormData, PersonFormData, Category, CategoryFormData } from "@/types";
 
 // People operations
 export async function getAllPeople(): Promise<Person[]> {
@@ -119,16 +119,90 @@ export async function createConference(conferenceData: ConferenceFormData): Prom
 export async function getUniqueCategories(): Promise<string[]> {
   const supabase = getSupabaseClient();
   const { data, error } = await supabase
-    .from("conferences")
-    .select("category")
-    .order("category", { ascending: true });
+    .from("categories")
+    .select("name")
+    .order("name", { ascending: true });
 
   if (error) {
     throw new Error(`Failed to fetch categories: ${error.message}`);
   }
 
-  const categories = [...new Set(data?.map((c) => c.category) || [])];
-  return categories;
+  return data?.map((c) => c.name) || [];
+}
+
+// Category operations
+export async function getAllCategories(): Promise<Category[]> {
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase
+    .from("categories")
+    .select("*")
+    .order("name", { ascending: true });
+
+  if (error) {
+    throw new Error(`Failed to fetch categories: ${error.message}`);
+  }
+
+  return data || [];
+}
+
+export async function createCategory(categoryData: CategoryFormData): Promise<Category> {
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase
+    .from("categories")
+    .insert({
+      name: categoryData.name,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    if (error.code === "23505") {
+      // Unique constraint violation
+      throw new Error("Category already exists. Please use a different name.");
+    }
+    throw new Error(`Failed to create category: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function deleteCategory(categoryId: string): Promise<void> {
+  const supabase = getSupabaseClient();
+  
+  // Get category name first
+  const { data: category, error: categoryError } = await supabase
+    .from("categories")
+    .select("name")
+    .eq("id", categoryId)
+    .single();
+
+  if (categoryError || !category) {
+    throw new Error(`Failed to find category: ${categoryError?.message || "Category not found"}`);
+  }
+
+  // Check if category is used in any conferences (by name)
+  const { data: conferences, error: checkError } = await supabase
+    .from("conferences")
+    .select("id")
+    .eq("category", category.name)
+    .limit(1);
+
+  if (checkError) {
+    throw new Error(`Failed to check category usage: ${checkError.message}`);
+  }
+
+  if (conferences && conferences.length > 0) {
+    throw new Error("Cannot delete category. It is being used by one or more conferences.");
+  }
+
+  const { error } = await supabase
+    .from("categories")
+    .delete()
+    .eq("id", categoryId);
+
+  if (error) {
+    throw new Error(`Failed to delete category: ${error.message}`);
+  }
 }
 
 export async function deletePerson(personId: string): Promise<void> {
