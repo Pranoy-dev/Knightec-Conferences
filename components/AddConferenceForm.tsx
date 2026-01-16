@@ -32,7 +32,7 @@ const STATUS_OPTIONS = [
   { value: "Attended", label: "Attended" },
 ] as const;
 
-interface AddConferenceFormProps {
+export interface AddConferenceFormProps {
   people: Person[];
   onSuccess?: () => void;
   onCancel?: () => void;
