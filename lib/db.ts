@@ -151,7 +151,7 @@ export async function createCategory(categoryData: CategoryFormData): Promise<Ca
     .from("categories")
     .insert({
       name: categoryData.name,
-    })
+    } as any)
     .select()
     .single();
 
