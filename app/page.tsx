@@ -80,7 +80,6 @@ export default function Home() {
   const handleExport = async () => {
     try {
       await exportConferencesToExcel(filteredConferences, people, offices);
-      toast.success("Excel file downloaded successfully!");
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Failed to export data";
       toast.error(errorMessage);
@@ -101,7 +100,7 @@ export default function Home() {
           onClick={handleExport}
           variant="outline"
           size="sm"
-          className="gap-2"
+          className="gap-2 hover:bg-background hover:text-foreground"
           disabled={filteredConferences.length === 0}
         >
           <Download className="h-4 w-4" />

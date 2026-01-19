@@ -193,7 +193,7 @@ export function CategorySearch({
               <Badge
                 key={category.id}
                 variant={selected ? "default" : "outline"}
-                className="cursor-pointer hover:bg-primary/10 transition-colors"
+                className={selected ? "cursor-pointer bg-[#FFA600] text-white hover:bg-[#FFA600]/90 transition-colors" : "cursor-pointer hover:bg-primary/10 transition-colors"}
                 onClick={() => handleCategoryClick(category.name)}
               >
                 {category.name}

@@ -199,7 +199,7 @@ export function OfficeSearch({
               <Badge
                 key={office.id}
                 variant={selected ? "default" : "outline"}
-                className="cursor-pointer hover:bg-primary/10 transition-colors"
+                className={selected ? "cursor-pointer bg-[#FFA600] text-white hover:bg-[#FFA600]/90 transition-colors" : "cursor-pointer hover:bg-primary/10 transition-colors"}
                 onClick={() => handleOfficeClick(office.name)}
               >
                 {office.name}

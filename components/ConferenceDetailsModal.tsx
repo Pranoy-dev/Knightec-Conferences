@@ -13,7 +13,7 @@ import { AddConferenceForm } from "./AddConferenceForm";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency, formatDateRange } from "@/lib/format";
 import type { Conference, Person, Office, Category } from "@/types";
-import { MapPin, Tag, User, Calendar, DollarSign, ExternalLink, Edit } from "lucide-react";
+import { MapPin, Tag, User, Calendar, Ticket, ExternalLink, Edit } from "lucide-react";
 
 interface ConferenceDetailsModalProps {
   conference: Conference;
@@ -126,7 +126,7 @@ export function ConferenceDetailsModal({
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <span className="text-sm font-medium">Office</span>
                 </div>
-                <Badge variant="default">{office.name}</Badge>
+                <Badge variant="default" className="bg-[#FFA600] text-white hover:bg-[#FFA600]/90">{office.name}</Badge>
               </div>
             )}
 
@@ -153,7 +153,7 @@ export function ConferenceDetailsModal({
             {/* Price */}
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-muted-foreground">
-                <DollarSign className="h-4 w-4" />
+                <Ticket className="h-4 w-4" />
                 <span className="text-sm font-medium">Price</span>
               </div>
               <p className="text-sm font-medium">{formatCurrency(conference.price, conference.currency || "SEK")}</p>
@@ -204,7 +204,7 @@ export function ConferenceDetailsModal({
 
           {/* Edit Button */}
           <div className="flex justify-end pt-4 border-t">
-            <Button onClick={handleEdit} className="gap-2">
+            <Button onClick={handleEdit} className="gap-2 bg-[#FFA600] text-white hover:bg-[#FFA600]/90">
               <Edit className="h-4 w-4" />
               Edit
             </Button>

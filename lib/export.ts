@@ -1,5 +1,5 @@
 import type { Conference, Person, Office } from "@/types";
-import { formatCurrency, formatDateRange } from "./format";
+import { formatCurrency } from "./format";
 
 /**
  * Export conferences to Excel file
@@ -27,19 +27,12 @@ export async function exportConferencesToExcel(
       "Location": conference.location,
       "Office": office?.name || "",
       "Category": conference.category,
-      "Price": conference.price,
-      "Currency": conference.currency || "SEK",
-      "Price Formatted": formatCurrency(conference.price, conference.currency || "SEK"),
+      "Price": formatCurrency(conference.price, conference.currency || "SEK"),
       "Assigned To": person?.name || "",
       "Assigned Email": person?.email || "",
       "Start Date": conference.start_date || "",
       "End Date": conference.end_date || "",
-      "Date Range": formatDateRange(conference.start_date, conference.end_date),
-      "Status": conference.status || "",
       "Event Link": conference.event_link || "",
-      "Notes": conference.notes || "",
-      "Created At": conference.created_at ? new Date(conference.created_at).toLocaleDateString() : "",
-      "Updated At": conference.updated_at ? new Date(conference.updated_at).toLocaleDateString() : "",
     };
   });
 
@@ -47,25 +40,28 @@ export async function exportConferencesToExcel(
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.json_to_sheet(excelData);
 
+  // Make headers bold
+  const headerRange = XLSX.utils.decode_range(ws["!ref"] || "A1");
+  for (let col = headerRange.s.c; col <= headerRange.e.c; col++) {
+    const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col });
+    if (!ws[cellAddress]) continue;
+    ws[cellAddress].s = {
+      font: { bold: true },
+    };
+  }
+
   // Set column widths for better readability
   const colWidths = [
     { wch: 30 }, // Conference Name
     { wch: 25 }, // Location
     { wch: 20 }, // Office
     { wch: 20 }, // Category
-    { wch: 12 }, // Price
-    { wch: 10 }, // Currency
-    { wch: 15 }, // Price Formatted
+    { wch: 15 }, // Price
     { wch: 20 }, // Assigned To
     { wch: 25 }, // Assigned Email
     { wch: 12 }, // Start Date
     { wch: 12 }, // End Date
-    { wch: 25 }, // Date Range
-    { wch: 12 }, // Status
     { wch: 40 }, // Event Link
-    { wch: 50 }, // Notes
-    { wch: 12 }, // Created At
-    { wch: 12 }, // Updated At
   ];
   ws["!cols"] = colWidths;
 

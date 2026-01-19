@@ -25,7 +25,7 @@ export function ConferenceCard({ conference, person, office, onClick }: Conferen
           </h3>
         </div>
         {office && (
-          <Badge variant="default" className="w-fit">
+          <Badge variant="default" className="w-fit bg-[#FFA600] text-white hover:bg-[#FFA600]/90">
             {office.name}
           </Badge>
         )}

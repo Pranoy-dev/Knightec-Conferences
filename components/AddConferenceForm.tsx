@@ -693,7 +693,7 @@ export function AddConferenceForm({
               Cancel
             </Button>
           )}
-          <Button type="submit" disabled={form.formState.isSubmitting} className="text-white">
+          <Button type="submit" disabled={form.formState.isSubmitting} className="bg-[#FFA600] text-white hover:bg-[#FFA600]/90">
             {form.formState.isSubmitting ? "Saving..." : "Save"}
           </Button>
         </div>
