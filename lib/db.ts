@@ -13,7 +13,8 @@ export async function getAllPeople(): Promise<Person[]> {
     throw new Error(`Failed to fetch people: ${error.message}`);
   }
 
-  return data || [];
+  // Type assertion to fix TypeScript inference issue in Vercel build
+  return (data || []) as Person[];
 }
 
 export async function createPerson(personData: PersonFormData): Promise<Person> {
@@ -50,7 +51,8 @@ export async function getAllConferences(): Promise<Conference[]> {
     throw new Error(`Failed to fetch conferences: ${error.message}`);
   }
 
-  return data || [];
+  // Type assertion to fix TypeScript inference issue in Vercel build
+  return (data || []) as Conference[];
 }
 
 export async function getConferencesWithPeople(): Promise<Array<Conference & { person: Person | null }>> {
@@ -133,7 +135,10 @@ export async function getUniqueCategories(): Promise<string[]> {
     throw new Error(`Failed to fetch categories: ${error.message}`);
   }
 
-  return data?.map((c) => c.name) || [];
+  // Type assertion to fix TypeScript inference issue in Vercel build
+  const typedData = (data || []) as Array<{ name: string }>;
+
+  return typedData.map((c) => c.name);
 }
 
 // Category operations
@@ -148,7 +153,8 @@ export async function getAllCategories(): Promise<Category[]> {
     throw new Error(`Failed to fetch categories: ${error.message}`);
   }
 
-  return data || [];
+  // Type assertion to fix TypeScript inference issue in Vercel build
+  return (data || []) as Category[];
 }
 
 export async function createCategory(categoryData: CategoryFormData): Promise<Category> {
