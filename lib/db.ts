@@ -1,5 +1,6 @@
 import { getSupabaseClient } from "./supabase";
 import type { Person, Conference, ConferenceFormData, PersonFormData, Category, CategoryFormData, Office, OfficeFormData } from "@/types";
+import type { Database } from "./database.types";
 
 // People operations
 export async function getAllPeople(): Promise<Person[]> {
@@ -252,7 +253,7 @@ export async function updateConference(
   conferenceData: ConferenceFormData
 ): Promise<Conference> {
   const supabase = getSupabaseClient();
-  const updateData: any = {
+  const updateData: Database["public"]["Tables"]["conferences"]["Update"] = {
     name: conferenceData.name,
     location: conferenceData.location,
     category: conferenceData.category,
