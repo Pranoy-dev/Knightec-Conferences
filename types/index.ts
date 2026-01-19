@@ -12,6 +12,7 @@ export type Conference = {
   location: string;
   category: string;
   price: number;
+  currency: string;
   assigned_to: string | null;
   start_date: string | null;
   end_date: string | null;
@@ -31,6 +32,7 @@ export type ConferenceFormData = {
   location: string;
   category: string;
   price: number;
+  currency: string;
   assigned_to: string;
   start_date?: string;
   end_date?: string;

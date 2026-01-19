@@ -50,6 +50,7 @@ export interface AddConferenceFormProps {
     location: string;
     category: string;
     price: number;
+    currency: string;
     assigned_to: string;
     start_date: string;
     end_date: string;
@@ -83,7 +84,7 @@ export function AddConferenceForm({
   const [isScraping, setIsScraping] = useState(false);
   const [lastScrapedUrl, setLastScrapedUrl] = useState<string>("");
   const scrapeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const [currency, setCurrency] = useState<string>("SEK"); // Default currency
+  const [currency, setCurrency] = useState<string>(initialData?.currency || "SEK"); // Default currency
 
   // Use explicit input/output types for type safety with zodResolver
   // Input type: what form fields are (strings from HTML inputs, or numbers from form state)
@@ -98,6 +99,7 @@ export function AddConferenceForm({
       location: initialData?.location || "",
       category: initialData?.category || "",
       price: initialData?.price !== undefined ? String(initialData.price) : "0", // String input (HTML input type) - will be transformed to number
+      currency: (initialData?.currency || "SEK") as "SEK" | "USD" | "EUR" | "GBP" | "NOK" | "DKK",
       assigned_to: initialData?.assigned_to || "",
       start_date: initialData?.start_date || "",
       end_date: initialData?.end_date || "",
@@ -110,11 +112,14 @@ export function AddConferenceForm({
   // Update form when initialData changes
   useEffect(() => {
     if (initialData) {
+      const currencyValue = (initialData.currency || "SEK") as "SEK" | "USD" | "EUR" | "GBP" | "NOK" | "DKK";
+      setCurrency(initialData.currency || "SEK");
       form.reset({
         name: initialData.name || "",
         location: initialData.location || "",
         category: initialData.category || "",
         price: initialData.price !== undefined ? String(initialData.price) : "0",
+        currency: currencyValue,
         assigned_to: initialData.assigned_to || "",
         start_date: initialData.start_date || "",
         end_date: initialData.end_date || "",
@@ -301,6 +306,7 @@ export function AddConferenceForm({
         await createConference(data);
         toast.success("Conference added successfully!");
         form.reset();
+        setCurrency("SEK");
       }
       onSuccess?.();
     } catch (error) {
@@ -508,17 +514,25 @@ export function AddConferenceForm({
           />
 
           {/* Price with Currency */}
-          <FormField
-            control={form.control}
-            name="price"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Price *</FormLabel>
-                <div className="flex gap-2">
-                  <Select value={currency} onValueChange={setCurrency}>
-                    <SelectTrigger className="w-[100px]">
-                      <SelectValue />
-                    </SelectTrigger>
+          <div className="flex gap-2">
+            <FormField
+              control={form.control}
+              name="currency"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Currency</FormLabel>
+                  <Select 
+                    value={currency} 
+                    onValueChange={(value) => {
+                      setCurrency(value);
+                      field.onChange(value);
+                    }}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-[100px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
                     <SelectContent>
                       <SelectItem value="SEK">SEK</SelectItem>
                       <SelectItem value="USD">USD</SelectItem>
@@ -528,6 +542,16 @@ export function AddConferenceForm({
                       <SelectItem value="DKK">DKK</SelectItem>
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="price"
+              render={({ field }) => (
+                <FormItem className="flex-1">
+                  <FormLabel>Price *</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
@@ -540,14 +564,13 @@ export function AddConferenceForm({
                         const value = e.target.value;
                         field.onChange(value === "" ? "0" : value);
                       }}
-                      className="flex-1"
                     />
                   </FormControl>
-                </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
         </div>
 
         {/* Hidden category field - value is set by CategorySearch component */}

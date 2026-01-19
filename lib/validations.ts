@@ -61,6 +61,7 @@ export const conferenceSchema = z.object({
   location: z.string().min(1, "Location is required"),
   category: z.string().min(1, "Category is required"),
   price: formNumberSchema({ min: 0, message: "Price must be 0 or greater" }),
+  currency: z.enum(["SEK", "USD", "EUR", "GBP", "NOK", "DKK"]).default("SEK"),
   assigned_to: z.string().min(1, "Please assign to a person"),
   start_date: z.string().optional(),
   end_date: z.string().optional(),

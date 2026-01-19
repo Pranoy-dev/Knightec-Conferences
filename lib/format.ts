@@ -1,9 +1,22 @@
 import { format, parseISO } from "date-fns";
 
-export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("en-US", {
+export function formatCurrency(amount: number, currency: string = "SEK"): string {
+  // Map currency codes to locale for proper formatting
+  const localeMap: Record<string, string> = {
+    SEK: "sv-SE",
+    USD: "en-US",
+    EUR: "de-DE",
+    GBP: "en-GB",
+    NOK: "nb-NO",
+    DKK: "da-DK",
+  };
+  
+  const locale = localeMap[currency] || "en-US";
+  const currencyCode = currency || "SEK";
+  
+  return new Intl.NumberFormat(locale, {
     style: "currency",
-    currency: "USD",
+    currency: currencyCode,
   }).format(amount);
 }
 

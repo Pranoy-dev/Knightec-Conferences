@@ -72,6 +72,7 @@ export function ConferenceDetailsModal({
               location: conference.location,
               category: conference.category,
               price: conference.price,
+              currency: conference.currency || "SEK",
               assigned_to: conference.assigned_to || "",
               start_date: conference.start_date || "",
               end_date: conference.end_date || "",
@@ -154,7 +155,7 @@ export function ConferenceDetailsModal({
                 <DollarSign className="h-4 w-4" />
                 <span className="text-sm font-medium">Price</span>
               </div>
-              <p className="text-sm font-medium">{formatCurrency(conference.price)}</p>
+              <p className="text-sm font-medium">{formatCurrency(conference.price, conference.currency || "SEK")}</p>
             </div>
 
             {/* Dates */}
