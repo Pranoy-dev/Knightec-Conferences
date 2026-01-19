@@ -252,20 +252,22 @@ export async function updateConference(
   conferenceData: ConferenceFormData
 ): Promise<Conference> {
   const supabase = getSupabaseClient();
+  const updateData: any = {
+    name: conferenceData.name,
+    location: conferenceData.location,
+    category: conferenceData.category,
+    price: conferenceData.price,
+    assigned_to: conferenceData.assigned_to || null,
+    start_date: conferenceData.start_date || null,
+    end_date: conferenceData.end_date || null,
+    event_link: conferenceData.event_link || null,
+    notes: conferenceData.notes || null,
+    status: conferenceData.status || null,
+  };
+  
   const { data, error } = await supabase
     .from("conferences")
-    .update({
-      name: conferenceData.name,
-      location: conferenceData.location,
-      category: conferenceData.category,
-      price: conferenceData.price,
-      assigned_to: conferenceData.assigned_to || null,
-      start_date: conferenceData.start_date || null,
-      end_date: conferenceData.end_date || null,
-      event_link: conferenceData.event_link || null,
-      notes: conferenceData.notes || null,
-      status: conferenceData.status || null,
-    } as any)
+    .update(updateData)
     .eq("id", conferenceId)
     .select()
     .single();
@@ -274,6 +276,7 @@ export async function updateConference(
     throw new Error(`Failed to update conference: ${error.message}`);
   }
 
+  // Type assertion to fix TypeScript inference issue in Vercel build
   return data as Conference;
 }
 
