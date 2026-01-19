@@ -5,16 +5,11 @@ export const personSchema = z.object({
   email: z.string().email("Invalid email address"),
 });
 
-const priceSchema = z.union([z.string(), z.number()]).transform((val) => {
-  const num = typeof val === "string" ? parseFloat(val) : val;
-  return isNaN(num) ? 0 : num;
-}).pipe(z.number().min(0, "Price must be 0 or greater"));
-
 export const conferenceSchema = z.object({
   name: z.string().min(1, "Name is required"),
   location: z.string().min(1, "Location is required"),
   category: z.string().min(1, "Category is required"),
-  price: priceSchema,
+  price: z.coerce.number().min(0, "Price must be 0 or greater"),
   assigned_to: z.string().min(1, "Please assign to a person"),
   start_date: z.string().optional(),
   end_date: z.string().optional(),
