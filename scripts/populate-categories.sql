@@ -1,0 +1,40 @@
+-- Populate categories for technology consultant organization
+-- Run this script in your Supabase SQL Editor
+
+-- Insert categories (ignore if they already exist)
+INSERT INTO categories (name) VALUES
+  ('AI'),
+  ('Data'),
+  ('Cloud'),
+  ('Security'),
+  ('DevOps'),
+  ('Platform'),
+  ('Architecture'),
+  ('Backend'),
+  ('Frontend'),
+  ('Mobile'),
+  ('Testing'),
+  ('UX'),
+  ('Product'),
+  ('Leadership'),
+  ('Strategy'),
+  ('Delivery'),
+  ('Agile'),
+  ('Observability'),
+  ('Reliability'),
+  ('Integration'),
+  ('Enterprise'),
+  ('IoT'),
+  ('Edge'),
+  ('Embedded'),
+  ('Hardware'),
+  ('Blockchain'),
+  ('Spatial'),
+  ('FinTech'),
+  ('HealthTech'),
+  ('Mobility'),
+  ('Sustainability'),
+  ('Innovation'),
+  ('Governance'),
+  ('Compliance')
+ON CONFLICT (name) DO NOTHING;

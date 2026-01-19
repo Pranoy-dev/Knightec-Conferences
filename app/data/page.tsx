@@ -29,7 +29,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { formatCurrency, formatDateRange } from "@/lib/format";
 import { Trash2 } from "lucide-react";
 
 export default function DataPage() {
@@ -195,7 +194,7 @@ export default function DataPage() {
                         <TableCell className="font-medium">{person.name}</TableCell>
                         <TableCell>{person.email}</TableCell>
                         <TableCell>
-                          <Badge variant={assignedCount > 0 ? "default" : "secondary"}>
+                          <Badge className="bg-[#FFA600] text-white hover:bg-[#FFA600]/90 border-transparent">
                             {assignedCount}
                           </Badge>
                         </TableCell>
@@ -255,73 +254,51 @@ export default function DataPage() {
             </div>
           ) : (
             <div className="border rounded-lg overflow-hidden">
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Location</TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead>Price</TableHead>
-                      <TableHead>Assigned To</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {conferences.map((conference) => (
-                      <TableRow key={conference.id}>
-                        <TableCell className="font-medium">{conference.name}</TableCell>
-                        <TableCell>{conference.location}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{conference.category}</Badge>
-                        </TableCell>
-                        <TableCell>{formatCurrency(conference.price)}</TableCell>
-                        <TableCell>{getPersonName(conference.assigned_to)}</TableCell>
-                        <TableCell>
-                          {conference.status && (
-                            <Badge variant="secondary">{conference.status}</Badge>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {formatDateRange(conference.start_date, conference.end_date) || "-"}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 text-destructive hover:text-destructive"
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {conferences.map((conference) => (
+                    <TableRow key={conference.id}>
+                      <TableCell className="font-medium">{conference.name}</TableCell>
+                      <TableCell className="text-right">
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Conference</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete "{conference.name}"? This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDeleteConference(conference.id)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                               >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Delete Conference</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Are you sure you want to delete "{conference.name}"? This action cannot be undone.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => handleDeleteConference(conference.id)}
-                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                >
-                                  Delete
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           )}
         </TabsContent>
@@ -350,7 +327,7 @@ export default function DataPage() {
                       <TableRow key={category.id}>
                         <TableCell className="font-medium">{category.name}</TableCell>
                         <TableCell>
-                          <Badge variant={usageCount > 0 ? "default" : "secondary"}>
+                          <Badge className="bg-[#FFA600] text-white hover:bg-[#FFA600]/90 border-transparent">
                             {usageCount}
                           </Badge>
                         </TableCell>

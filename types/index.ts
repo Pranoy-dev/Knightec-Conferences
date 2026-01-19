@@ -55,6 +55,17 @@ export type CategoryFormData = {
   name: string;
 };
 
+export type Office = {
+  id: string;
+  name: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type OfficeFormData = {
+  name: string;
+};
+
 export type ConferenceFilters = {
   category?: string;
   location?: string;
@@ -63,4 +74,5 @@ export type ConferenceFilters = {
   price_min?: number;
   price_max?: number;
   search?: string;
+  office?: string;
 };

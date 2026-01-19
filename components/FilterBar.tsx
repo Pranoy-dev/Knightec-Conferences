@@ -1,32 +1,19 @@
 "use client";
 
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { SearchableSelect, type SearchableSelectOption } from "@/components/ui/searchable-select";
 import type { ConferenceFilters } from "@/types";
-import { X, ChevronDown, Filter } from "lucide-react";
-import type { Person } from "@/types";
-import { cn } from "@/lib/utils";
+import { X } from "lucide-react";
+import { useMemo } from "react";
+import type { Person, Office } from "@/types";
 
 interface FilterBarProps {
   filters: ConferenceFilters;
   onFiltersChange: (filters: ConferenceFilters) => void;
   categories: string[];
   people: Person[];
-  statuses: string[];
+  offices: Office[];
 }
 
 export function FilterBar({
@@ -34,14 +21,12 @@ export function FilterBar({
   onFiltersChange,
   categories,
   people,
-  statuses,
+  offices,
 }: FilterBarProps) {
-  const [isOpen, setIsOpen] = useState(false);
-
   const updateFilter = (key: keyof ConferenceFilters, value: string | undefined) => {
     onFiltersChange({
       ...filters,
-      [key]: value === "all" ? undefined : value || undefined,
+      [key]: value === "all" || value === "" ? undefined : value || undefined,
     });
   };
 
@@ -49,186 +34,142 @@ export function FilterBar({
     onFiltersChange({});
   };
 
-  const hasActiveFilters = Object.keys(filters).length > 0;
-  const activeFilterCount = Object.keys(filters).length;
+  const hasActiveFilters = 
+    (filters.office && filters.office !== "all") ||
+    (filters.category && filters.category !== "all") ||
+    (filters.assigned_to && filters.assigned_to !== "all");
 
-  const handleToggle = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsOpen(!isOpen);
-  };
+  // Prepare options for searchable selects
+  const officeOptions = useMemo<SearchableSelectOption[]>(() => {
+    return [
+      { value: "all", label: "All offices" },
+      ...offices.map((office) => ({
+        value: office.id,
+        label: office.name,
+      })),
+    ];
+  }, [offices]);
 
-  const handleMouseEnter = () => {
-    setIsOpen(true);
-  };
+  const categoryOptions = useMemo<SearchableSelectOption[]>(() => {
+    return [
+      { value: "all", label: "All categories" },
+      ...categories.map((category) => ({
+        value: category,
+        label: category,
+      })),
+    ];
+  }, [categories]);
 
-  const handleMouseLeave = () => {
-    setIsOpen(false);
-  };
+  const peopleOptions = useMemo<SearchableSelectOption[]>(() => {
+    return [
+      { value: "all", label: "All people" },
+      ...people.map((person) => ({
+        value: person.id,
+        label: person.name,
+      })),
+    ];
+  }, [people]);
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
-      <div 
-        className="border rounded-lg bg-card shadow-sm hover:shadow-md transition-shadow overflow-hidden"
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-      >
-        <button
-          type="button"
-          onClick={handleToggle}
-          className="w-full flex items-center justify-between p-4 h-auto transition-all duration-200 rounded-md text-sm font-medium cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 hover:shadow-sm"
-        >
-          <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4" />
-            <span className="font-medium">Filters</span>
-            {activeFilterCount > 0 && (
-              <Badge variant="secondary" className="ml-2">
-                {activeFilterCount}
-              </Badge>
-            )}
-          </div>
-          <ChevronDown
-            className={cn(
-              "h-4 w-4 transition-transform duration-300 ease-in-out",
-              isOpen && "rotate-180"
-            )}
+    <div className="space-y-4">
+      {/* Filter Controls */}
+      <div className="flex flex-wrap items-end gap-4">
+        {/* Office Filter */}
+        <div className="flex-1 min-w-[200px]">
+          <label className="text-sm font-medium text-muted-foreground mb-2 block">
+            Office
+          </label>
+          <SearchableSelect
+            options={officeOptions}
+            value={filters.office || "all"}
+            onValueChange={(value) => updateFilter("office", value)}
+            placeholder="All offices"
+            searchPlaceholder="Search offices..."
+            className="w-full"
           />
-        </button>
+        </div>
 
-        <CollapsibleContent className="overflow-hidden transition-all duration-300 ease-in-out data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
-          <div className="px-4 pb-5 space-y-5 pt-2">
-          {/* Active Filters Chips */}
-          {hasActiveFilters && (
-            <div className="flex flex-wrap gap-2 pt-3 border-t border-border/50">
-              {filters.search && (
-                <Badge variant="secondary" className="gap-1">
-                  Search: {filters.search}
-                  <button
-                    onClick={() => updateFilter("search", undefined)}
-                    className="ml-1 hover:bg-destructive/20 rounded-full p-0.5"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              )}
-              {filters.category && filters.category !== "all" && (
-                <Badge variant="secondary" className="gap-1">
-                  Category: {filters.category}
-                  <button
-                    onClick={() => updateFilter("category", undefined)}
-                    className="ml-1 hover:bg-destructive/20 rounded-full p-0.5"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              )}
-              {filters.assigned_to && filters.assigned_to !== "all" && (
-                <Badge variant="secondary" className="gap-1">
-                  Assigned: {people.find((p) => p.id === filters.assigned_to)?.name}
-                  <button
-                    onClick={() => updateFilter("assigned_to", undefined)}
-                    className="ml-1 hover:bg-destructive/20 rounded-full p-0.5"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              )}
-              {filters.status && filters.status !== "all" && (
-                <Badge variant="secondary" className="gap-1">
-                  Status: {filters.status}
-                  <button
-                    onClick={() => updateFilter("status", undefined)}
-                    className="ml-1 hover:bg-destructive/20 rounded-full p-0.5"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              )}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearFilters}
-                className="h-6 text-xs"
-              >
-                Clear all
-              </Button>
-            </div>
-          )}
+        {/* Category Filter */}
+        <div className="flex-1 min-w-[200px]">
+          <label className="text-sm font-medium text-muted-foreground mb-2 block">
+            Category
+          </label>
+          <SearchableSelect
+            options={categoryOptions}
+            value={filters.category || "all"}
+            onValueChange={(value) => updateFilter("category", value)}
+            placeholder="All categories"
+            searchPlaceholder="Search categories..."
+            className="w-full"
+          />
+        </div>
 
-          {/* Filter Inputs */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-            <div className="space-y-2.5">
-              <label className="text-sm font-semibold text-foreground">Search</label>
-              <Input
-                placeholder="Search name or location..."
-                value={filters.search || ""}
-                onChange={(e) => updateFilter("search", e.target.value)}
-              />
-            </div>
+        {/* Assigned To Filter */}
+        <div className="flex-1 min-w-[200px]">
+          <label className="text-sm font-medium text-muted-foreground mb-2 block">
+            Assigned To
+          </label>
+          <SearchableSelect
+            options={peopleOptions}
+            value={filters.assigned_to || "all"}
+            onValueChange={(value) => updateFilter("assigned_to", value)}
+            placeholder="All people"
+            searchPlaceholder="Search people..."
+            className="w-full"
+          />
+        </div>
 
-            <div className="space-y-2.5">
-              <label className="text-sm font-semibold text-foreground">Category</label>
-              <Select
-                value={filters.category || "all"}
-                onValueChange={(value) => updateFilter("category", value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="All categories" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All categories</SelectItem>
-                  {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2.5">
-              <label className="text-sm font-semibold text-foreground">Assigned To</label>
-              <Select
-                value={filters.assigned_to || "all"}
-                onValueChange={(value) => updateFilter("assigned_to", value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="All people" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All people</SelectItem>
-                  {people.map((person) => (
-                    <SelectItem key={person.id} value={person.id}>
-                      {person.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2.5">
-              <label className="text-sm font-semibold text-foreground">Status</label>
-              <Select
-                value={filters.status || "all"}
-                onValueChange={(value) => updateFilter("status", value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="All statuses" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All statuses</SelectItem>
-                  {statuses.map((status) => (
-                    <SelectItem key={status} value={status}>
-                      {status}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          </div>
-        </CollapsibleContent>
+        {/* Clear Filters Button */}
+        {hasActiveFilters && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={clearFilters}
+            className="h-10 text-sm"
+          >
+            Clear filters
+          </Button>
+        )}
       </div>
-    </Collapsible>
+
+      {/* Active Filter Badges */}
+      {hasActiveFilters && (
+        <div className="flex flex-wrap gap-2">
+          {filters.office && filters.office !== "all" && (
+            <Badge variant="secondary" className="gap-1.5 px-3 py-1.5">
+              Office: {offices.find((o) => o.id === filters.office)?.name || filters.office}
+              <button
+                onClick={() => updateFilter("office", undefined)}
+                className="ml-1 hover:bg-destructive/20 rounded-full p-0.5 -mr-1"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          )}
+          {filters.category && filters.category !== "all" && (
+            <Badge variant="secondary" className="gap-1.5 px-3 py-1.5">
+              Category: {filters.category}
+              <button
+                onClick={() => updateFilter("category", undefined)}
+                className="ml-1 hover:bg-destructive/20 rounded-full p-0.5 -mr-1"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          )}
+          {filters.assigned_to && filters.assigned_to !== "all" && (
+            <Badge variant="secondary" className="gap-1.5 px-3 py-1.5">
+              Assigned: {people.find((p) => p.id === filters.assigned_to)?.name}
+              <button
+                onClick={() => updateFilter("assigned_to", undefined)}
+                className="ml-1 hover:bg-destructive/20 rounded-full p-0.5 -mr-1"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

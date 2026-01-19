@@ -1,16 +1,37 @@
 "use client";
 
+import { useState } from "react";
 import { ConferenceCard } from "./ConferenceCard";
-import type { Conference, Person } from "@/types";
+import { ConferenceDetailsModal } from "./ConferenceDetailsModal";
+import type { Conference, Person, Office } from "@/types";
 import { Calendar } from "lucide-react";
 
 interface ConferenceListProps {
   conferences: Conference[];
   people: Person[];
+  offices: Office[];
+  onUpdate?: () => void;
 }
 
-export function ConferenceList({ conferences, people }: ConferenceListProps) {
+export function ConferenceList({ conferences, people, offices, onUpdate }: ConferenceListProps) {
+  const [selectedConference, setSelectedConference] = useState<Conference | null>(null);
   const peopleMap = new Map(people.map((p) => [p.id, p]));
+  
+  // Match office by location name (temporary until office_id is added to conferences)
+  const getOfficeForConference = (conference: Conference): Office | null => {
+    const matchingOffice = offices.find(
+      (office) => office.name.toLowerCase() === conference.location.toLowerCase()
+    );
+    return matchingOffice || null;
+  };
+
+  const handleCardClick = (conference: Conference) => {
+    setSelectedConference(conference);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedConference(null);
+  };
 
   if (conferences.length === 0) {
     return (
@@ -29,14 +50,32 @@ export function ConferenceList({ conferences, people }: ConferenceListProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-      {conferences.map((conference) => (
-        <ConferenceCard
-          key={conference.id}
-          conference={conference}
-          person={conference.assigned_to ? peopleMap.get(conference.assigned_to) : null}
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {conferences.map((conference) => (
+          <ConferenceCard
+            key={conference.id}
+            conference={conference}
+            person={conference.assigned_to ? peopleMap.get(conference.assigned_to) : null}
+            office={getOfficeForConference(conference)}
+            onClick={() => handleCardClick(conference)}
+          />
+        ))}
+      </div>
+
+      {selectedConference && (
+        <ConferenceDetailsModal
+          conference={selectedConference}
+          person={selectedConference.assigned_to ? peopleMap.get(selectedConference.assigned_to) : null}
+          office={getOfficeForConference(selectedConference)}
+          people={people}
+          onClose={handleCloseModal}
+          onUpdate={() => {
+            handleCloseModal();
+            onUpdate?.();
+          }}
         />
-      ))}
-    </div>
+      )}
+    </>
   );
 }
