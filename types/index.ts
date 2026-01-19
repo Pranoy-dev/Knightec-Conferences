@@ -20,8 +20,23 @@ export type Conference = {
   event_link: string | null;
   notes: string | null;
   status: "Interested" | "Planned" | "Booked" | "Attended" | null;
+  reason_to_go: string | null;
   created_at: string;
   updated_at: string;
+};
+
+export type Rating = {
+  id: string;
+  conference_id: string;
+  accessibility_rating: number | null;
+  skill_improvement_rating: number | null;
+  finding_partners_rating: number | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ConferenceWithRating = Conference & {
+  rating?: Rating | null;
 };
 
 export type ConferenceWithPerson = Conference & {
@@ -41,6 +56,17 @@ export type ConferenceFormData = {
   event_link?: string;
   notes?: string;
   status?: "Interested" | "Planned" | "Booked" | "Attended";
+  reason_to_go?: string | null;
+  accessibility_rating?: number | null;
+  skill_improvement_rating?: number | null;
+  finding_partners_rating?: number | null;
+};
+
+export type RatingFormData = {
+  conference_id: string;
+  accessibility_rating?: number | null;
+  skill_improvement_rating?: number | null;
+  finding_partners_rating?: number | null;
 };
 
 export type PersonFormData = {

@@ -48,6 +48,7 @@ export interface Database {
           event_link: string | null;
           notes: string | null;
           status: "Interested" | "Planned" | "Booked" | "Attended" | null;
+          reason_to_go: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -65,6 +66,7 @@ export interface Database {
           event_link?: string | null;
           notes?: string | null;
           status?: "Interested" | "Planned" | "Booked" | "Attended" | null;
+          reason_to_go?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -82,6 +84,36 @@ export interface Database {
           event_link?: string | null;
           notes?: string | null;
           status?: "Interested" | "Planned" | "Booked" | "Attended" | null;
+          reason_to_go?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      ratings: {
+        Row: {
+          id: string;
+          conference_id: string;
+          accessibility_rating: number | null;
+          skill_improvement_rating: number | null;
+          finding_partners_rating: number | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          conference_id: string;
+          accessibility_rating?: number | null;
+          skill_improvement_rating?: number | null;
+          finding_partners_rating?: number | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          conference_id?: string;
+          accessibility_rating?: number | null;
+          skill_improvement_rating?: number | null;
+          finding_partners_rating?: number | null;
           created_at?: string;
           updated_at?: string;
         };

@@ -1,11 +1,11 @@
-import type { Conference, Person, Office } from "@/types";
+import type { ConferenceWithRating, Person, Office } from "@/types";
 import { formatCurrency } from "./format";
 
 /**
  * Export conferences to Excel file
  */
 export async function exportConferencesToExcel(
-  conferences: Conference[],
+  conferences: ConferenceWithRating[],
   people: Person[],
   offices: Office[]
 ): Promise<void> {

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PeopleList } from "@/components/PeopleList";
 import { deletePerson, deleteConference, getAllPeople, getAllConferences, getAllCategories, deleteCategory } from "@/lib/db";
-import type { Person, Conference, Category } from "@/types";
+import type { Person, ConferenceWithRating, Category } from "@/types";
 import { toast } from "sonner";
 import { ArrowLeft, Users, Calendar, Tag } from "lucide-react";
 import Link from "next/link";
@@ -33,7 +33,7 @@ import { Trash2 } from "lucide-react";
 
 export default function DataPage() {
   const [people, setPeople] = useState<Person[]>([]);
-  const [conferences, setConferences] = useState<Conference[]>([]);
+  const [conferences, setConferences] = useState<ConferenceWithRating[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 

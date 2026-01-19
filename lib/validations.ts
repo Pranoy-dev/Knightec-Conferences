@@ -73,6 +73,10 @@ export const conferenceSchema = z.object({
     }),
   notes: z.string().optional(),
   status: z.enum(["Interested", "Planned", "Booked", "Attended"]).optional(),
+  accessibility_rating: z.number().int().min(1).max(5).nullable().optional(),
+  skill_improvement_rating: z.number().int().min(1).max(5).nullable().optional(),
+  finding_partners_rating: z.number().int().min(1).max(5).nullable().optional(),
+  reason_to_go: z.string().max(500).nullable().optional(),
 });
 
 // Form value types - use output types (what we get after validation)

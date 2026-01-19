@@ -1,5 +1,5 @@
 import { getSupabaseClient } from "./supabase";
-import type { Person, Conference, ConferenceFormData, PersonFormData, Category, CategoryFormData, Office, OfficeFormData } from "@/types";
+import type { Person, Conference, ConferenceFormData, PersonFormData, Category, CategoryFormData, Office, OfficeFormData, Rating, RatingFormData, ConferenceWithRating } from "@/types";
 import type { Database } from "./database.types";
 
 // People operations
@@ -42,19 +42,59 @@ export async function createPerson(personData: PersonFormData): Promise<Person> 
 }
 
 // Conference operations
-export async function getAllConferences(): Promise<Conference[]> {
+export async function getAllConferences(): Promise<ConferenceWithRating[]> {
   const supabase = getSupabaseClient();
+  
+  // First, try to fetch with ratings join
   const { data, error } = await supabase
     .from("conferences")
-    .select("*")
+    .select(`
+      *,
+      rating:ratings(*)
+    `)
     .order("created_at", { ascending: false });
 
   if (error) {
+    // If error is about missing relation or table, try without join
+    if (error.message.includes("relation") || error.message.includes("does not exist") || error.message.includes("ratings")) {
+      // Fallback: fetch conferences without ratings
+      const { data: confData, error: confError } = await supabase
+        .from("conferences")
+        .select("*")
+        .order("created_at", { ascending: false });
+      
+      if (confError) {
+        throw new Error(`Failed to fetch conferences: ${confError.message}`);
+      }
+      
+      return (confData || []).map((conference: any) => ({
+        ...conference,
+        rating: null,
+      })) as ConferenceWithRating[];
+    }
     throw new Error(`Failed to fetch conferences: ${error.message}`);
   }
 
-  // Type assertion to fix TypeScript inference issue in Vercel build
-  return (data || []) as Conference[];
+  // Transform the data to match ConferenceWithRating type
+  return (data || []).map((conference: any) => {
+    // Handle rating - it might be an array or null
+    let rating = null;
+    if (conference.rating) {
+      if (Array.isArray(conference.rating)) {
+        rating = conference.rating.length > 0 ? conference.rating[0] : null;
+      } else {
+        rating = conference.rating;
+      }
+    }
+    
+    // Remove rating from conference object before spreading
+    const { rating: _, ...conferenceData } = conference;
+    
+    return {
+      ...conferenceData,
+      rating,
+    };
+  }) as ConferenceWithRating[];
 }
 
 export async function getConferencesWithPeople(): Promise<Array<Conference & { person: Person | null }>> {
@@ -100,7 +140,7 @@ export async function getConferencesWithPeople(): Promise<Array<Conference & { p
   }));
 }
 
-export async function createConference(conferenceData: ConferenceFormData): Promise<Conference> {
+export async function createConference(conferenceData: ConferenceFormData): Promise<ConferenceWithRating> {
   const supabase = getSupabaseClient();
   
   // Build insert data object, only including office_id if it's provided
@@ -116,6 +156,7 @@ export async function createConference(conferenceData: ConferenceFormData): Prom
     event_link: conferenceData.event_link || null,
     notes: conferenceData.notes || null,
     status: conferenceData.status || null,
+    reason_to_go: conferenceData.reason_to_go ?? null,
   };
   
   // Only add office_id if it's provided (column might not exist in older databases)
@@ -137,8 +178,25 @@ export async function createConference(conferenceData: ConferenceFormData): Prom
     throw new Error(`Failed to create conference: ${error.message}`);
   }
 
-  // Type assertion to fix TypeScript inference issue in Vercel build
-  return data as Conference;
+  const conference = data as Conference;
+
+  // Create rating if provided
+  let rating: Rating | null = null;
+  if (
+    conferenceData.accessibility_rating !== null && conferenceData.accessibility_rating !== undefined ||
+    conferenceData.skill_improvement_rating !== null && conferenceData.skill_improvement_rating !== undefined ||
+    conferenceData.finding_partners_rating !== null && conferenceData.finding_partners_rating !== undefined
+  ) {
+    const ratingData: RatingFormData = {
+      conference_id: conference.id,
+      accessibility_rating: conferenceData.accessibility_rating ?? null,
+      skill_improvement_rating: conferenceData.skill_improvement_rating ?? null,
+      finding_partners_rating: conferenceData.finding_partners_rating ?? null,
+    };
+    rating = await createOrUpdateRating(ratingData);
+  }
+
+  return { ...conference, rating };
 }
 
 export async function getUniqueCategories(): Promise<string[]> {
@@ -265,7 +323,7 @@ export async function deletePerson(personId: string): Promise<void> {
 export async function updateConference(
   conferenceId: string,
   conferenceData: ConferenceFormData
-): Promise<Conference> {
+): Promise<ConferenceWithRating> {
   const supabase = getSupabaseClient();
   
   // Build update data object
@@ -281,6 +339,7 @@ export async function updateConference(
     event_link: conferenceData.event_link || null,
     notes: conferenceData.notes || null,
     status: conferenceData.status || null,
+    reason_to_go: conferenceData.reason_to_go ?? null,
   };
   
   // Only add office_id if it's provided (column might not exist in older databases)
@@ -303,8 +362,93 @@ export async function updateConference(
     throw new Error(`Failed to update conference: ${error.message}`);
   }
 
-  // Type assertion to fix TypeScript inference issue in Vercel build
-  return data as Conference;
+  const conference = data as Conference;
+
+  // Create or update rating if provided
+  let rating: Rating | null = null;
+  if (
+    conferenceData.accessibility_rating !== null && conferenceData.accessibility_rating !== undefined ||
+    conferenceData.skill_improvement_rating !== null && conferenceData.skill_improvement_rating !== undefined ||
+    conferenceData.finding_partners_rating !== null && conferenceData.finding_partners_rating !== undefined
+  ) {
+    const ratingData: RatingFormData = {
+      conference_id: conferenceId,
+      accessibility_rating: conferenceData.accessibility_rating ?? null,
+      skill_improvement_rating: conferenceData.skill_improvement_rating ?? null,
+      finding_partners_rating: conferenceData.finding_partners_rating ?? null,
+    };
+    rating = await createOrUpdateRating(ratingData);
+  } else {
+    // If all ratings are null/undefined, delete the rating if it exists
+    await deleteRating(conferenceId);
+  }
+
+  return { ...conference, rating };
+}
+
+// Rating operations
+export async function createOrUpdateRating(ratingData: RatingFormData): Promise<Rating> {
+  const supabase = getSupabaseClient();
+  
+  // Check if rating exists
+  const { data: existingRating } = await supabase
+    .from("ratings")
+    .select("*")
+    .eq("conference_id", ratingData.conference_id)
+    .single();
+
+  if (existingRating) {
+    // Update existing rating
+    const { data, error } = await supabase
+      .from("ratings")
+      .update({
+        accessibility_rating: ratingData.accessibility_rating ?? null,
+        skill_improvement_rating: ratingData.skill_improvement_rating ?? null,
+        finding_partners_rating: ratingData.finding_partners_rating ?? null,
+      })
+      .eq("conference_id", ratingData.conference_id)
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to update rating: ${error.message}`);
+    }
+
+    return data as Rating;
+  } else {
+    // Create new rating
+    const { data, error } = await supabase
+      .from("ratings")
+      .insert({
+        conference_id: ratingData.conference_id,
+        accessibility_rating: ratingData.accessibility_rating ?? null,
+        skill_improvement_rating: ratingData.skill_improvement_rating ?? null,
+        finding_partners_rating: ratingData.finding_partners_rating ?? null,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to create rating: ${error.message}`);
+    }
+
+    return data as Rating;
+  }
+}
+
+export async function deleteRating(conferenceId: string): Promise<void> {
+  const supabase = getSupabaseClient();
+  const { error } = await supabase
+    .from("ratings")
+    .delete()
+    .eq("conference_id", conferenceId);
+
+  if (error) {
+    // Don't throw error if rating doesn't exist
+    if (!error.message.includes("No rows")) {
+      throw new Error(`Failed to delete rating: ${error.message}`);
+    }
+  }
 }
 
 export async function deleteConference(conferenceId: string): Promise<void> {

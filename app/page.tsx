@@ -6,7 +6,7 @@ import { FilterBar } from "@/components/FilterBar";
 import { FloatingActionButton } from "@/components/FloatingActionButton";
 import { getAllConferences, getAllPeople, getUniqueCategories, getAllOffices } from "@/lib/db";
 import { exportConferencesToExcel } from "@/lib/export";
-import type { Conference, Person, ConferenceFilters, Office } from "@/types";
+import type { ConferenceWithRating, Person, ConferenceFilters, Office } from "@/types";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
@@ -17,7 +17,7 @@ interface HomeProps {
 }
 
 export default function Home(_props: HomeProps) {
-  const [conferences, setConferences] = useState<Conference[]>([]);
+  const [conferences, setConferences] = useState<ConferenceWithRating[]>([]);
   const [people, setPeople] = useState<Person[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [offices, setOffices] = useState<Office[]>([]);

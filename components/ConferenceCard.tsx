@@ -2,11 +2,12 @@
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import type { Conference, Person, Office } from "@/types";
-import { MapPin, Tag, User, ExternalLink } from "lucide-react";
+import type { ConferenceWithRating, Person, Office } from "@/types";
+import { MapPin, Tag, User, ExternalLink, Star } from "lucide-react";
+import { RatingDisplay } from "@/components/ui/rating-display";
 
 interface ConferenceCardProps {
-  conference: Conference;
+  conference: ConferenceWithRating;
   person?: Person | null;
   office?: Office | null;
   onClick?: () => void;
@@ -89,6 +90,40 @@ export function ConferenceCard({ conference, person, office, onClick }: Conferen
                     ? `${conference.event_link.substring(0, 40)}...` 
                     : conference.event_link}
                 </a>
+              </div>
+            </div>
+          )}
+
+          {/* Ratings */}
+          {conference.rating && (
+            conference.rating.accessibility_rating || 
+            conference.rating.skill_improvement_rating || 
+            conference.rating.finding_partners_rating
+          ) && (
+            <div className="pt-2 border-t">
+              <div className="flex items-center gap-2 mb-2">
+                <Star className="h-3.5 w-3.5 text-muted-foreground" />
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Ratings</p>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {conference.rating.accessibility_rating && (
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Accessibility</p>
+                    <RatingDisplay value={conference.rating.accessibility_rating} size="sm" />
+                  </div>
+                )}
+                {conference.rating.skill_improvement_rating && (
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Skill</p>
+                    <RatingDisplay value={conference.rating.skill_improvement_rating} size="sm" />
+                  </div>
+                )}
+                {conference.rating.finding_partners_rating && (
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Partners</p>
+                    <RatingDisplay value={conference.rating.finding_partners_rating} size="sm" />
+                  </div>
+                )}
               </div>
             </div>
           )}

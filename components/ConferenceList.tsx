@@ -3,30 +3,30 @@
 import { useState } from "react";
 import { ConferenceCard } from "./ConferenceCard";
 import { ConferenceDetailsModal } from "./ConferenceDetailsModal";
-import type { Conference, Person, Office } from "@/types";
+import type { ConferenceWithRating, Person, Office } from "@/types";
 import { Calendar } from "lucide-react";
 
 interface ConferenceListProps {
-  conferences: Conference[];
+  conferences: ConferenceWithRating[];
   people: Person[];
   offices: Office[];
   onUpdate?: () => void;
 }
 
 export function ConferenceList({ conferences, people, offices, onUpdate }: ConferenceListProps) {
-  const [selectedConference, setSelectedConference] = useState<Conference | null>(null);
+  const [selectedConference, setSelectedConference] = useState<ConferenceWithRating | null>(null);
   const peopleMap = new Map(people.map((p) => [p.id, p]));
   const officesMap = new Map(offices.map((o) => [o.id, o]));
   
   // Get office by office_id
-  const getOfficeForConference = (conference: Conference): Office | null => {
+  const getOfficeForConference = (conference: ConferenceWithRating): Office | null => {
     if (conference.office_id) {
       return officesMap.get(conference.office_id) || null;
     }
     return null;
   };
 
-  const handleCardClick = (conference: Conference) => {
+  const handleCardClick = (conference: ConferenceWithRating) => {
     setSelectedConference(conference);
   };
 
