@@ -253,7 +253,7 @@ export async function updateConference(
   conferenceData: ConferenceFormData
 ): Promise<Conference> {
   const supabase = getSupabaseClient();
-  const updateData: Database["public"]["Tables"]["conferences"]["Update"] = {
+  const updateData = {
     name: conferenceData.name,
     location: conferenceData.location,
     category: conferenceData.category,
@@ -268,7 +268,7 @@ export async function updateConference(
   
   const { data, error } = await supabase
     .from("conferences")
-    .update(updateData)
+    .update(updateData as any)
     .eq("id", conferenceId)
     .select()
     .single();
