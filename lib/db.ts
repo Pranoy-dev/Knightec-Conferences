@@ -84,8 +84,11 @@ export async function getConferencesWithPeople(): Promise<Array<Conference & { p
     throw new Error(`Failed to fetch people: ${peopleError.message}`);
   }
 
+  // Type assertion to fix TypeScript inference issue in Vercel build
+  const typedPeople = (people || []) as Person[];
+
   // Map people to conferences
-  const peopleMap = new Map(people?.map((p) => [p.id, p]) || []);
+  const peopleMap = new Map(typedPeople.map((p) => [p.id, p]));
 
   return typedConferences.map((conference) => ({
     ...conference,
