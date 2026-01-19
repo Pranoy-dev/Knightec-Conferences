@@ -46,15 +46,19 @@ export interface AddConferenceFormProps {
 export function AddConferenceForm({ people, onSuccess, onCancel }: AddConferenceFormProps) {
   const [categories, setCategories] = useState<Category[]>([]);
 
-  // Use output type for form (what we get after validation)
-  // Handle string inputs from HTML in the form field itself
-  const form = useForm<ConferenceFormValues>({
+  // Use explicit input/output types for type safety with zodResolver
+  // Input type: what form fields are (strings from HTML inputs, or numbers from form state)
+  // Output type: what we get after validation (numbers)
+  type FormInput = FormInputType<typeof conferenceSchema>;
+  type FormOutput = FormOutputType<typeof conferenceSchema>;
+
+  const form = useForm<FormInput, unknown, FormOutput>({
     resolver: zodResolver(conferenceSchema),
     defaultValues: {
       name: "",
       location: "",
       category: "",
-      price: 0, // Number output (will be converted from string input)
+      price: "", // String input (HTML input type) - will be transformed to number
       assigned_to: "",
       start_date: "",
       end_date: "",
@@ -189,11 +193,11 @@ export function AddConferenceForm({ people, onSuccess, onCancel }: AddConference
                     step="0.01"
                     min="0"
                     placeholder="0.00"
-                    value={field.value ?? ""}
+                    value={typeof field.value === "number" ? field.value : field.value ?? ""}
                     onChange={(e) => {
                       const value = e.target.value;
-                      // Convert string to number, handle empty string as 0
-                      field.onChange(value === "" ? 0 : parseFloat(value) || 0);
+                      // Keep as string (input type) - zodResolver will transform to number
+                      field.onChange(value === "" ? "" : value);
                     }}
                     onBlur={field.onBlur}
                   />
