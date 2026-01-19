@@ -25,17 +25,11 @@ export const conferenceSchema = z.object({
 
 export type PersonFormValues = z.infer<typeof personSchema>;
 
-// Explicitly define ConferenceFormValues to ensure price is number
-// z.output doesn't properly infer coerced types, so we define it manually
-export type ConferenceFormValues = {
-  name: string;
-  location: string;
-  category: string;
-  price: number; // Explicitly number (coerced from string | number)
-  assigned_to: string;
-  start_date?: string;
-  end_date?: string;
-  event_link?: string;
-  notes?: string;
-  status?: "Interested" | "Planned" | "Booked" | "Attended";
-};
+// Define input and output types for conference schema
+// Input type: what the form fields actually are (before coercion)
+// Output type: what we get after validation/coercion
+export type ConferenceFormInput = z.input<typeof conferenceSchema>;
+export type ConferenceFormOutput = z.output<typeof conferenceSchema>;
+
+// For backwards compatibility, export ConferenceFormValues as the output type
+export type ConferenceFormValues = ConferenceFormOutput;

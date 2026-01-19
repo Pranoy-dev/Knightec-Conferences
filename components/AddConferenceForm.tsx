@@ -2,7 +2,12 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { conferenceSchema, type ConferenceFormValues } from "@/lib/validations";
+import {
+  conferenceSchema,
+  type ConferenceFormInput,
+  type ConferenceFormOutput,
+  type ConferenceFormValues,
+} from "@/lib/validations";
 import {
   Form,
   FormControl,
@@ -41,13 +46,13 @@ export interface AddConferenceFormProps {
 export function AddConferenceForm({ people, onSuccess, onCancel }: AddConferenceFormProps) {
   const [categories, setCategories] = useState<Category[]>([]);
 
-  const form = useForm<ConferenceFormValues>({
+  const form = useForm<ConferenceFormInput, unknown, ConferenceFormOutput>({
     resolver: zodResolver(conferenceSchema),
     defaultValues: {
       name: "",
       location: "",
       category: "",
-      price: 0,
+      price: "", // Input type accepts string (will be coerced to number)
       assigned_to: "",
       start_date: "",
       end_date: "",
