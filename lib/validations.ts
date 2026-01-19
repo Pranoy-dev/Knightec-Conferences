@@ -1,26 +1,65 @@
 import { z } from "zod";
 
+/**
+ * Utility function to create a number schema for form inputs.
+ * 
+ * HTML number inputs always return strings, so this utility:
+ * - Accepts string input (what HTML provides)
+ * - Transforms to number output (what we need)
+ * - Provides explicit types that work with react-hook-form + zodResolver
+ * 
+ * Usage:
+ *   price: formNumberSchema({ min: 0, message: "Price must be 0 or greater" })
+ * 
+ * This pattern ensures type safety and prevents TypeScript errors in strict mode.
+ */
+export function formNumberSchema(options?: { min?: number; max?: number; message?: string }) {
+  const { min, max, message = "Invalid number" } = options || {};
+  
+  return z
+    .string()
+    .transform((val) => {
+      if (val === "" || val === null || val === undefined) return 0;
+      const num = parseFloat(val);
+      return isNaN(num) ? 0 : num;
+    })
+    .pipe(z.number())
+    .refine((val) => {
+      if (min !== undefined && val < min) return false;
+      if (max !== undefined && val > max) return false;
+      return true;
+    }, {
+      message: message,
+    });
+}
+
+/**
+ * Type helper for form schemas with number fields.
+ * 
+ * This ensures proper type inference for react-hook-form:
+ * - Input type: what form fields actually are (strings from HTML inputs)
+ * - Output type: what we get after validation (numbers)
+ * 
+ * Usage:
+ *   type FormInput = FormInputType<typeof schema>;
+ *   type FormOutput = FormOutputType<typeof schema>;
+ */
+export type FormInputType<T extends z.ZodTypeAny> = z.input<T>;
+export type FormOutputType<T extends z.ZodTypeAny> = z.output<T>;
+
+// Person schema
 export const personSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email address"),
 });
 
-// Transform string/number input to number for form inputs
-// HTML number inputs return strings, so we preprocess them to numbers
-const numberFromString = z.preprocess(
-  (val) => {
-    if (val === "" || val === null || val === undefined) return 0;
-    const num = typeof val === "string" ? parseFloat(val) : Number(val);
-    return isNaN(num) ? val : num;
-  },
-  z.number().min(0, "Price must be 0 or greater")
-);
-
+// Conference schema
+// Note: price uses formNumberSchema() which explicitly types input as string and output as number
 export const conferenceSchema = z.object({
   name: z.string().min(1, "Name is required"),
   location: z.string().min(1, "Location is required"),
   category: z.string().min(1, "Category is required"),
-  price: numberFromString,
+  price: formNumberSchema({ min: 0, message: "Price must be 0 or greater" }),
   assigned_to: z.string().min(1, "Please assign to a person"),
   start_date: z.string().optional(),
   end_date: z.string().optional(),
@@ -34,5 +73,6 @@ export const conferenceSchema = z.object({
   status: z.enum(["Interested", "Planned", "Booked", "Attended"]).optional(),
 });
 
-export type PersonFormValues = z.infer<typeof personSchema>;
-export type ConferenceFormValues = z.infer<typeof conferenceSchema>;
+// Form value types - use output types (what we get after validation)
+export type PersonFormValues = FormOutputType<typeof personSchema>;
+export type ConferenceFormValues = FormOutputType<typeof conferenceSchema>;
