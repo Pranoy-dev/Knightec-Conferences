@@ -36,7 +36,8 @@ export async function createPerson(personData: PersonFormData): Promise<Person> 
     throw new Error(`Failed to create person: ${error.message}`);
   }
 
-  return data;
+  // Type assertion to fix TypeScript inference issue in Vercel build
+  return data as Person;
 }
 
 // Conference operations
@@ -121,7 +122,8 @@ export async function createConference(conferenceData: ConferenceFormData): Prom
     throw new Error(`Failed to create conference: ${error.message}`);
   }
 
-  return data;
+  // Type assertion to fix TypeScript inference issue in Vercel build
+  return data as Conference;
 }
 
 export async function getUniqueCategories(): Promise<string[]> {
@@ -175,7 +177,8 @@ export async function createCategory(categoryData: CategoryFormData): Promise<Ca
     throw new Error(`Failed to create category: ${error.message}`);
   }
 
-  return data;
+  // Type assertion to fix TypeScript inference issue in Vercel build
+  return data as Category;
 }
 
 export async function deleteCategory(categoryId: string): Promise<void> {
@@ -192,11 +195,14 @@ export async function deleteCategory(categoryId: string): Promise<void> {
     throw new Error(`Failed to find category: ${categoryError?.message || "Category not found"}`);
   }
 
+  // Type assertion to fix TypeScript inference issue in Vercel build
+  const typedCategory = category as { name: string };
+
   // Check if category is used in any conferences (by name)
   const { data: conferences, error: checkError } = await supabase
     .from("conferences")
     .select("id")
-    .eq("category", category.name)
+    .eq("category", typedCategory.name)
     .limit(1);
 
   if (checkError) {
