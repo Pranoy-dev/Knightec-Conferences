@@ -24,4 +24,18 @@ export const conferenceSchema = z.object({
 });
 
 export type PersonFormValues = z.infer<typeof personSchema>;
-export type ConferenceFormValues = z.output<typeof conferenceSchema>;
+
+// Explicitly define ConferenceFormValues to ensure price is number
+// z.output doesn't properly infer coerced types, so we define it manually
+export type ConferenceFormValues = {
+  name: string;
+  location: string;
+  category: string;
+  price: number; // Explicitly number (coerced from string | number)
+  assigned_to: string;
+  start_date?: string;
+  end_date?: string;
+  event_link?: string;
+  notes?: string;
+  status?: "Interested" | "Planned" | "Booked" | "Attended";
+};
