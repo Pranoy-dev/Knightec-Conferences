@@ -23,7 +23,7 @@ export async function createPerson(personData: PersonFormData): Promise<Person> 
     .insert({
       name: personData.name,
       email: personData.email,
-    })
+    } as any)
     .select()
     .single();
 
@@ -105,7 +105,7 @@ export async function createConference(conferenceData: ConferenceFormData): Prom
       event_link: conferenceData.event_link || null,
       notes: conferenceData.notes || null,
       status: conferenceData.status || null,
-    })
+    } as any)
     .select()
     .single();
 
