@@ -92,11 +92,14 @@ export function SearchableSelect({
         className={cn(
           "border-input data-[placeholder]:text-muted-foreground",
           "flex w-full items-center justify-between gap-2 rounded-md border",
-          "bg-transparent px-3 py-2 text-sm",
-          "shadow-xs transition-[color,box-shadow]",
-          "outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+          "backdrop-blur-md bg-background/70 px-3 py-2 text-sm",
+          "shadow-[2px_0_8px_rgba(0,0,0,0.06),0_1px_4px_rgba(0,0,0,0.04)]",
+          "transition-all duration-300",
+          "hover:bg-background/90 hover:shadow-[4px_0_12px_rgba(0,0,0,0.1),0_2px_6px_rgba(0,0,0,0.06)]",
+          "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
           "disabled:cursor-not-allowed disabled:opacity-50",
           "h-9",
+          isOpen && "bg-background/95 shadow-[4px_0_12px_rgba(0,0,0,0.1),0_2px_6px_rgba(0,0,0,0.06)]",
           className
         )}
       >
@@ -134,12 +137,14 @@ export function SearchableSelect({
       {isOpen && (
         <div
           className={cn(
-            "absolute z-50 mt-1 w-full rounded-md border bg-popover shadow-md",
+            "absolute z-50 mt-1 w-full rounded-md border",
+            "backdrop-blur-md bg-popover/95 border-border/50",
+            "shadow-[4px_4px_16px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.08)]",
             "animate-in fade-in-0 zoom-in-95"
           )}
         >
           {/* Search Input */}
-          <div className="p-2 border-b">
+          <div className="p-2 border-b border-border/30">
             <div className="relative">
               <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -148,7 +153,7 @@ export function SearchableSelect({
                 placeholder={searchPlaceholder}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 h-8"
+                className="pl-8 h-8 backdrop-blur-sm bg-background/50 border-border/50"
                 onKeyDown={(e) => {
                   if (e.key === "Escape") {
                     setIsOpen(false);
@@ -176,9 +181,10 @@ export function SearchableSelect({
                   onClick={() => handleSelect(option.value)}
                   className={cn(
                     "w-full flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm",
-                    "hover:bg-accent hover:text-accent-foreground",
-                    "transition-colors cursor-pointer",
-                    value === option.value && "bg-accent/50"
+                    "hover:bg-accent/80 hover:text-accent-foreground",
+                    "transition-all duration-200 cursor-pointer",
+                    "backdrop-blur-sm",
+                    value === option.value && "bg-accent/60 shadow-sm"
                   )}
                 >
                   <span className="flex-1 text-left">{option.label}</span>

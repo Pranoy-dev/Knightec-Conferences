@@ -105,7 +105,7 @@ export default function Home(_props: HomeProps) {
           onClick={handleExport}
           variant="outline"
           size="sm"
-          className="gap-2 hover:bg-background hover:text-foreground"
+          className="gap-2 shadow-sm hover:shadow-md transition-shadow bg-white/80 border-border/40 hover:bg-white/90"
           disabled={filteredConferences.length === 0}
         >
           <Download className="h-4 w-4" />

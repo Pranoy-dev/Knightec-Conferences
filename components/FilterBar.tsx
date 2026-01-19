@@ -75,48 +75,63 @@ export function FilterBar({
       {/* Filter Controls */}
       <div className="flex flex-wrap items-end gap-4">
         {/* Office Filter */}
-        <div className="flex-1 min-w-[200px]">
-          <label className="text-sm font-medium text-muted-foreground mb-2 block">
+        <div className="flex-1 min-w-[200px] group">
+          <label className="text-sm font-medium text-foreground mb-2 block">
             Office
           </label>
-          <SearchableSelect
-            options={officeOptions}
-            value={filters.office || "all"}
-            onValueChange={(value) => updateFilter("office", value)}
-            placeholder="All offices"
-            searchPlaceholder="Search offices..."
-            className="w-full"
-          />
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-primary/10 to-transparent rounded-lg blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="relative backdrop-blur-sm bg-background/80 border border-border/50 rounded-lg p-1 shadow-[4px_0_12px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[6px_0_16px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.08)] transition-all duration-300 hover:border-primary/30">
+              <SearchableSelect
+                options={officeOptions}
+                value={filters.office || "all"}
+                onValueChange={(value) => updateFilter("office", value)}
+                placeholder="All offices"
+                searchPlaceholder="Search offices..."
+                className="w-full"
+              />
+            </div>
+          </div>
         </div>
 
         {/* Category Filter */}
-        <div className="flex-1 min-w-[200px]">
-          <label className="text-sm font-medium text-muted-foreground mb-2 block">
+        <div className="flex-1 min-w-[200px] group">
+          <label className="text-sm font-medium text-foreground mb-2 block">
             Category
           </label>
-          <SearchableSelect
-            options={categoryOptions}
-            value={filters.category || "all"}
-            onValueChange={(value) => updateFilter("category", value)}
-            placeholder="All categories"
-            searchPlaceholder="Search categories..."
-            className="w-full"
-          />
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-primary/10 to-transparent rounded-lg blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="relative backdrop-blur-sm bg-background/80 border border-border/50 rounded-lg p-1 shadow-[4px_0_12px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[6px_0_16px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.08)] transition-all duration-300 hover:border-primary/30">
+              <SearchableSelect
+                options={categoryOptions}
+                value={filters.category || "all"}
+                onValueChange={(value) => updateFilter("category", value)}
+                placeholder="All categories"
+                searchPlaceholder="Search categories..."
+                className="w-full"
+              />
+            </div>
+          </div>
         </div>
 
         {/* Assigned To Filter */}
-        <div className="flex-1 min-w-[200px]">
-          <label className="text-sm font-medium text-muted-foreground mb-2 block">
+        <div className="flex-1 min-w-[200px] group">
+          <label className="text-sm font-medium text-foreground mb-2 block">
             Assigned To
           </label>
-          <SearchableSelect
-            options={peopleOptions}
-            value={filters.assigned_to || "all"}
-            onValueChange={(value) => updateFilter("assigned_to", value)}
-            placeholder="All people"
-            searchPlaceholder="Search people..."
-            className="w-full"
-          />
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-primary/10 to-transparent rounded-lg blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="relative backdrop-blur-sm bg-background/80 border border-border/50 rounded-lg p-1 shadow-[4px_0_12px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[6px_0_16px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.08)] transition-all duration-300 hover:border-primary/30">
+              <SearchableSelect
+                options={peopleOptions}
+                value={filters.assigned_to || "all"}
+                onValueChange={(value) => updateFilter("assigned_to", value)}
+                placeholder="All people"
+                searchPlaceholder="Search people..."
+                className="w-full"
+              />
+            </div>
+          </div>
         </div>
 
         {/* Clear Filters Button */}
@@ -125,7 +140,7 @@ export function FilterBar({
             variant="ghost"
             size="sm"
             onClick={clearFilters}
-            className="h-10 text-sm"
+            className="h-10 text-sm backdrop-blur-sm bg-background/60 border border-border/50 shadow-[2px_0_8px_rgba(0,0,0,0.06)] hover:shadow-[4px_0_12px_rgba(0,0,0,0.1)] hover:bg-background/80 transition-all duration-300"
           >
             Clear filters
           </Button>
