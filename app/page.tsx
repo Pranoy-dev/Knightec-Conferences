@@ -5,8 +5,11 @@ import { ConferenceList } from "@/components/ConferenceList";
 import { FilterBar } from "@/components/FilterBar";
 import { FloatingActionButton } from "@/components/FloatingActionButton";
 import { getAllConferences, getAllPeople, getUniqueCategories, getAllOffices } from "@/lib/db";
+import { exportConferencesToExcel } from "@/lib/export";
 import type { Conference, Person, ConferenceFilters, Office } from "@/types";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
 
 export default function Home() {
   const [conferences, setConferences] = useState<Conference[]>([]);
@@ -77,14 +80,36 @@ export default function Home() {
     );
   }
 
+  const handleExport = () => {
+    try {
+      exportConferencesToExcel(filteredConferences, people, offices);
+      toast.success("Excel file downloaded successfully!");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to export data";
+      toast.error(errorMessage);
+    }
+  };
+
   return (
     <div className="container mx-auto p-6 md:p-8 space-y-6">
       {/* Page Header */}
-      <div className="space-y-1">
-        <h1 className="text-3xl font-bold tracking-tight">Conferences</h1>
-        <p className="text-muted-foreground text-sm">
-          Manage and filter your conference events
-        </p>
+      <div className="flex items-start justify-between">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold tracking-tight">Conferences</h1>
+          <p className="text-muted-foreground text-sm">
+            Manage and filter your conference events
+          </p>
+        </div>
+        <Button
+          onClick={handleExport}
+          variant="outline"
+          size="sm"
+          className="gap-2"
+          disabled={filteredConferences.length === 0}
+        >
+          <Download className="h-4 w-4" />
+          Export Excel
+        </Button>
       </div>
 
       {/* Filters */}
