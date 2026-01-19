@@ -16,11 +16,12 @@ import { z } from "zod";
 export function formNumberSchema(options?: { min?: number; max?: number; message?: string }) {
   const { min, max, message = "Invalid number" } = options || {};
   
+  // Accept both string (from HTML inputs) and number (from form state)
   return z
-    .string()
+    .union([z.string(), z.number()])
     .transform((val) => {
       if (val === "" || val === null || val === undefined) return 0;
-      const num = parseFloat(val);
+      const num = typeof val === "string" ? parseFloat(val) : val;
       return isNaN(num) ? 0 : num;
     })
     .pipe(z.number())
