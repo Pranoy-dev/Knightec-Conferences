@@ -1,15 +1,16 @@
-import * as XLSX from "xlsx";
 import type { Conference, Person, Office } from "@/types";
 import { formatCurrency, formatDateRange } from "./format";
 
 /**
  * Export conferences to Excel file
  */
-export function exportConferencesToExcel(
+export async function exportConferencesToExcel(
   conferences: Conference[],
   people: Person[],
   offices: Office[]
-): void {
+): Promise<void> {
+  // Dynamically import xlsx to avoid SSR issues
+  const XLSX = await import("xlsx");
   // Create a map for quick person lookup
   const peopleMap = new Map(people.map((p) => [p.id, p]));
 

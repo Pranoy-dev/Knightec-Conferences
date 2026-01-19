@@ -80,9 +80,9 @@ export default function Home() {
     );
   }
 
-  const handleExport = () => {
+  const handleExport = async () => {
     try {
-      exportConferencesToExcel(filteredConferences, people, offices);
+      await exportConferencesToExcel(filteredConferences, people, offices);
       toast.success("Excel file downloaded successfully!");
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Failed to export data";
