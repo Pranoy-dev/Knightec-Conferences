@@ -5,11 +5,22 @@ export const personSchema = z.object({
   email: z.string().email("Invalid email address"),
 });
 
+// Transform string/number input to number for form inputs
+// HTML number inputs return strings, so we preprocess them to numbers
+const numberFromString = z.preprocess(
+  (val) => {
+    if (val === "" || val === null || val === undefined) return 0;
+    const num = typeof val === "string" ? parseFloat(val) : Number(val);
+    return isNaN(num) ? val : num;
+  },
+  z.number().min(0, "Price must be 0 or greater")
+);
+
 export const conferenceSchema = z.object({
   name: z.string().min(1, "Name is required"),
   location: z.string().min(1, "Location is required"),
   category: z.string().min(1, "Category is required"),
-  price: z.coerce.number().min(0, "Price must be 0 or greater"),
+  price: numberFromString,
   assigned_to: z.string().min(1, "Please assign to a person"),
   start_date: z.string().optional(),
   end_date: z.string().optional(),
@@ -24,12 +35,4 @@ export const conferenceSchema = z.object({
 });
 
 export type PersonFormValues = z.infer<typeof personSchema>;
-
-// Define input and output types for conference schema
-// Input type: what the form fields actually are (before coercion)
-// Output type: what we get after validation/coercion
-export type ConferenceFormInput = z.input<typeof conferenceSchema>;
-export type ConferenceFormOutput = z.output<typeof conferenceSchema>;
-
-// For backwards compatibility, export ConferenceFormValues as the output type
-export type ConferenceFormValues = ConferenceFormOutput;
+export type ConferenceFormValues = z.infer<typeof conferenceSchema>;
