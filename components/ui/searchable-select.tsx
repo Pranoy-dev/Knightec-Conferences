@@ -105,14 +105,21 @@ export function SearchableSelect({
         </span>
         <div className="flex items-center gap-1 shrink-0">
           {allowClear && value && (
-            <button
-              type="button"
+            <span
+              role="button"
+              tabIndex={0}
               onClick={handleClear}
-              className="rounded-full p-0.5 hover:bg-muted transition-colors"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handleClear(e as any);
+                }
+              }}
+              className="rounded-full p-0.5 hover:bg-muted transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
               onMouseDown={(e) => e.stopPropagation()}
             >
               <X className="h-3.5 w-3.5 text-muted-foreground" />
-            </button>
+            </span>
           )}
           <ChevronDown
             className={cn(

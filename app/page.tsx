@@ -11,7 +11,12 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 
-export default function Home() {
+interface HomeProps {
+  params?: Promise<Record<string, string | string[]>>;
+  searchParams?: Promise<Record<string, string | string[]>>;
+}
+
+export default function Home(_props: HomeProps) {
   const [conferences, setConferences] = useState<Conference[]>([]);
   const [people, setPeople] = useState<Person[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
