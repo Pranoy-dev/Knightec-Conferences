@@ -102,25 +102,38 @@ export async function getConferencesWithPeople(): Promise<Array<Conference & { p
 
 export async function createConference(conferenceData: ConferenceFormData): Promise<Conference> {
   const supabase = getSupabaseClient();
+  
+  // Build insert data object, only including office_id if it's provided
+  const insertData: any = {
+    name: conferenceData.name,
+    location: conferenceData.location,
+    category: conferenceData.category,
+    price: conferenceData.price,
+    currency: conferenceData.currency || "SEK",
+    assigned_to: conferenceData.assigned_to || null,
+    start_date: conferenceData.start_date || null,
+    end_date: conferenceData.end_date || null,
+    event_link: conferenceData.event_link || null,
+    notes: conferenceData.notes || null,
+    status: conferenceData.status || null,
+  };
+  
+  // Only add office_id if it's provided (column might not exist in older databases)
+  if (conferenceData.office_id) {
+    insertData.office_id = conferenceData.office_id;
+  }
+  
   const { data, error } = await supabase
     .from("conferences")
-    .insert({
-      name: conferenceData.name,
-      location: conferenceData.location,
-      category: conferenceData.category,
-      price: conferenceData.price,
-      currency: conferenceData.currency || "SEK",
-      assigned_to: conferenceData.assigned_to || null,
-      start_date: conferenceData.start_date || null,
-      end_date: conferenceData.end_date || null,
-      event_link: conferenceData.event_link || null,
-      notes: conferenceData.notes || null,
-      status: conferenceData.status || null,
-    } as any)
+    .insert(insertData)
     .select()
     .single();
 
   if (error) {
+    // Provide more helpful error messages
+    if (error.message.includes("office_id") || error.message.includes("column") || error.message.includes("does not exist")) {
+      throw new Error(`Database error: The office_id column may not exist. Please run the migration: ALTER TABLE conferences ADD COLUMN office_id UUID REFERENCES offices(id);`);
+    }
     throw new Error(`Failed to create conference: ${error.message}`);
   }
 
@@ -254,6 +267,8 @@ export async function updateConference(
   conferenceData: ConferenceFormData
 ): Promise<Conference> {
   const supabase = getSupabaseClient();
+  
+  // Build update data object
   const updateData: any = {
     name: conferenceData.name,
     location: conferenceData.location,
@@ -268,6 +283,11 @@ export async function updateConference(
     status: conferenceData.status || null,
   };
   
+  // Only add office_id if it's provided (column might not exist in older databases)
+  if (conferenceData.office_id !== undefined) {
+    updateData.office_id = conferenceData.office_id || null;
+  }
+  
   // Type assertion to fix TypeScript inference issue with Supabase update types in Vercel build
   const { data, error } = await (supabase.from("conferences") as any)
     .update(updateData)
@@ -276,6 +296,10 @@ export async function updateConference(
     .single();
 
   if (error) {
+    // Provide more helpful error messages
+    if (error.message.includes("office_id") || error.message.includes("column") || error.message.includes("does not exist")) {
+      throw new Error(`Database error: The office_id column may not exist. Please run the migration: ALTER TABLE conferences ADD COLUMN office_id UUID REFERENCES offices(id);`);
+    }
     throw new Error(`Failed to update conference: ${error.message}`);
   }
 

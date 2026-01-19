@@ -47,14 +47,11 @@ export default function Home() {
   const filteredConferences = useMemo(() => {
     let filtered = [...conferences];
 
-    // Office filter (matching by location name until office_id is added)
+    // Office filter (matching by office_id)
     if (filters.office && filters.office !== "all") {
-      const office = offices.find((o) => o.id === filters.office);
-      if (office) {
-        filtered = filtered.filter(
-          (c) => c.location.toLowerCase() === office.name.toLowerCase()
-        );
-      }
+      filtered = filtered.filter(
+        (c) => c.office_id === filters.office
+      );
     }
 
     // Category filter

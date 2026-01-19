@@ -41,6 +41,7 @@ export interface Database {
           category: string;
           price: number;
           currency: string;
+          office_id: string | null;
           assigned_to: string | null;
           start_date: string | null;
           end_date: string | null;
@@ -57,6 +58,7 @@ export interface Database {
           category: string;
           price: number;
           currency?: string;
+          office_id?: string | null;
           assigned_to?: string | null;
           start_date?: string | null;
           end_date?: string | null;
@@ -73,6 +75,7 @@ export interface Database {
           category?: string;
           price?: number;
           currency?: string;
+          office_id?: string | null;
           assigned_to?: string | null;
           start_date?: string | null;
           end_date?: string | null;

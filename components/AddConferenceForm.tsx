@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/select";
 import { createConference, updateConference, getAllCategories, createCategory, getAllOffices, createOffice } from "@/lib/db";
 import { toast } from "sonner";
-import type { Person, Category, Office } from "@/types";
+import type { Person, Category, Office, ConferenceFormData } from "@/types";
 import { useEffect, useState, useRef } from "react";
 import { CategorySearch } from "./CategorySearch";
 import { OfficeSearch } from "./OfficeSearch";
@@ -169,6 +169,11 @@ export function AddConferenceForm({
     }
   }, [initialData?.name]); // Reset when event name changes (new scrape)
 
+  // Sync external selected offices
+  useEffect(() => {
+    setSelectedOffices(externalSelectedOffices);
+  }, [externalSelectedOffices.join(",")]);
+
   // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
@@ -273,9 +278,11 @@ export function AddConferenceForm({
       
       // Toggle office selection (single selection for office)
       const officeNameToUse = officeToUse.name;
+      const isCurrentlySelected = selectedOffices.includes(officeNameToUse);
+      
       setSelectedOffices((prev) => {
         // For office, we only allow single selection, so replace the array
-        const updated = prev.includes(officeNameToUse) ? [] : [officeNameToUse];
+        const updated = isCurrentlySelected ? [] : [officeNameToUse];
         return updated;
       });
     } catch (error) {
@@ -299,11 +306,44 @@ export function AddConferenceForm({
     }
 
     try {
+      // Ensure category is properly set from selected categories
+      if (selectedCategories.length > 0) {
+        data.category = selectedCategories.join(", ");
+      }
+
+      // Get office_id from selected office
+      let officeId: string | undefined = undefined;
+      if (selectedOffices.length > 0) {
+        const selectedOfficeName = selectedOffices[0];
+        const selectedOffice = offices.find(
+          (o) => o.name.toLowerCase() === selectedOfficeName.toLowerCase()
+        );
+        if (selectedOffice) {
+          officeId = selectedOffice.id;
+        }
+      }
+
+      // Normalize empty strings to undefined for optional fields (will be converted to null in db)
+      const normalizedData: ConferenceFormData = {
+        name: data.name,
+        location: data.location,
+        category: data.category,
+        price: data.price,
+        currency: data.currency,
+        office_id: officeId,
+        assigned_to: data.assigned_to,
+        start_date: data.start_date?.trim() || undefined,
+        end_date: data.end_date?.trim() || undefined,
+        event_link: data.event_link?.trim() || undefined,
+        notes: data.notes?.trim() || undefined,
+        status: data.status,
+      };
+
       if (conferenceId) {
-        await updateConference(conferenceId, data);
+        await updateConference(conferenceId, normalizedData);
         toast.success("Conference updated successfully!");
       } else {
-        await createConference(data);
+        await createConference(normalizedData);
         toast.success("Conference added successfully!");
         form.reset();
         setCurrency("SEK");

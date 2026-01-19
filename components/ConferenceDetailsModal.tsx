@@ -13,7 +13,7 @@ import { AddConferenceForm } from "./AddConferenceForm";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency, formatDateRange } from "@/lib/format";
 import type { Conference, Person, Office, Category } from "@/types";
-import { MapPin, Tag, User, Calendar, DollarSign, ExternalLink, FileText, Edit } from "lucide-react";
+import { MapPin, Tag, User, Calendar, DollarSign, ExternalLink, Edit } from "lucide-react";
 
 interface ConferenceDetailsModalProps {
   conference: Conference;
@@ -53,7 +53,7 @@ export function ConferenceDetailsModal({
       ? conference.category.split(",").map((c) => c.trim()).filter(Boolean)
       : [];
     
-    // Use office name from location if office exists, otherwise empty array
+    // Use office name if office exists, otherwise empty array
     const selectedOffices = office ? [office.name] : [];
 
     return (
@@ -102,15 +102,6 @@ export function ConferenceDetailsModal({
         </DialogHeader>
         
         <div className="space-y-6 py-4">
-          {/* Office Badge */}
-          {office && (
-            <div>
-              <Badge variant="default" className="text-sm px-3 py-1">
-                {office.name}
-              </Badge>
-            </div>
-          )}
-
           {/* Details Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Location */}
@@ -128,6 +119,16 @@ export function ConferenceDetailsModal({
                 {conference.location}
               </a>
             </div>
+
+            {/* Office */}
+            {office && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <span className="text-sm font-medium">Office</span>
+                </div>
+                <Badge variant="default">{office.name}</Badge>
+              </div>
+            )}
 
             {/* Category */}
             <div className="space-y-2">
@@ -198,17 +199,6 @@ export function ConferenceDetailsModal({
                 {conference.event_link}
                 <ExternalLink className="h-3 w-3" />
               </a>
-            </div>
-          )}
-
-          {/* Notes */}
-          {conference.notes && (
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <FileText className="h-4 w-4" />
-                <span className="text-sm font-medium">Notes</span>
-              </div>
-              <p className="text-sm text-foreground whitespace-pre-wrap">{conference.notes}</p>
             </div>
           )}
 

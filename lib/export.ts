@@ -13,15 +13,14 @@ export async function exportConferencesToExcel(
   const XLSX = await import("xlsx");
   // Create a map for quick person lookup
   const peopleMap = new Map(people.map((p) => [p.id, p]));
+  const officesMap = new Map(offices.map((o) => [o.id, o]));
 
   // Prepare data with clean column labels
   const excelData = conferences.map((conference) => {
     const person = conference.assigned_to ? peopleMap.get(conference.assigned_to) : null;
     
-    // Find office by matching location name
-    const office = offices.find(
-      (o) => o.name.toLowerCase() === conference.location.toLowerCase()
-    );
+    // Find office by office_id
+    const office = conference.office_id ? officesMap.get(conference.office_id) : null;
 
     return {
       "Conference Name": conference.name,

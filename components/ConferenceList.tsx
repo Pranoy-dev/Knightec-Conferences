@@ -16,13 +16,14 @@ interface ConferenceListProps {
 export function ConferenceList({ conferences, people, offices, onUpdate }: ConferenceListProps) {
   const [selectedConference, setSelectedConference] = useState<Conference | null>(null);
   const peopleMap = new Map(people.map((p) => [p.id, p]));
+  const officesMap = new Map(offices.map((o) => [o.id, o]));
   
-  // Match office by location name (temporary until office_id is added to conferences)
+  // Get office by office_id
   const getOfficeForConference = (conference: Conference): Office | null => {
-    const matchingOffice = offices.find(
-      (office) => office.name.toLowerCase() === conference.location.toLowerCase()
-    );
-    return matchingOffice || null;
+    if (conference.office_id) {
+      return officesMap.get(conference.office_id) || null;
+    }
+    return null;
   };
 
   const handleCardClick = (conference: Conference) => {
