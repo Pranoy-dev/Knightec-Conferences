@@ -68,8 +68,11 @@ export async function getConferencesWithPeople(): Promise<Array<Conference & { p
     return [];
   }
 
+  // Type assertion to fix TypeScript inference issue in Vercel build
+  const typedConferences = conferences as Conference[];
+
   // Get unique person IDs
-  const personIds = [...new Set(conferences.map((c) => c.assigned_to).filter(Boolean))];
+  const personIds = [...new Set(typedConferences.map((c) => c.assigned_to).filter(Boolean))];
 
   // Fetch all people
   const { data: people, error: peopleError } = await getSupabaseClient()
@@ -84,7 +87,7 @@ export async function getConferencesWithPeople(): Promise<Array<Conference & { p
   // Map people to conferences
   const peopleMap = new Map(people?.map((p) => [p.id, p]) || []);
 
-  return conferences.map((conference) => ({
+  return typedConferences.map((conference) => ({
     ...conference,
     person: conference.assigned_to ? peopleMap.get(conference.assigned_to) || null : null,
   }));
