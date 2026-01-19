@@ -253,7 +253,7 @@ export async function updateConference(
   conferenceData: ConferenceFormData
 ): Promise<Conference> {
   const supabase = getSupabaseClient();
-  const updateData = {
+  const updateData: any = {
     name: conferenceData.name,
     location: conferenceData.location,
     category: conferenceData.category,
@@ -266,9 +266,9 @@ export async function updateConference(
     status: conferenceData.status || null,
   };
   
-  const { data, error } = await supabase
-    .from("conferences")
-    .update(updateData as any)
+  // Type assertion to fix TypeScript inference issue with Supabase update types in Vercel build
+  const { data, error } = await (supabase.from("conferences") as any)
+    .update(updateData)
     .eq("id", conferenceId)
     .select()
     .single();
