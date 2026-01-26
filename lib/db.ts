@@ -399,13 +399,13 @@ export async function createOrUpdateRating(ratingData: RatingFormData): Promise<
 
   if (existingRating) {
     // Update existing rating
-    const { data, error } = await supabase
-      .from("ratings")
+    // Type assertion to fix TypeScript inference issue with Supabase update types in Vercel build
+    const { data, error } = await (supabase.from("ratings") as any)
       .update({
         accessibility_rating: ratingData.accessibility_rating ?? null,
         skill_improvement_rating: ratingData.skill_improvement_rating ?? null,
         finding_partners_rating: ratingData.finding_partners_rating ?? null,
-      } as any)
+      })
       .eq("conference_id", ratingData.conference_id)
       .select()
       .single();
@@ -417,14 +417,14 @@ export async function createOrUpdateRating(ratingData: RatingFormData): Promise<
     return data as Rating;
   } else {
     // Create new rating
-    const { data, error } = await supabase
-      .from("ratings")
+    // Type assertion to fix TypeScript inference issue with Supabase insert types in Vercel build
+    const { data, error } = await (supabase.from("ratings") as any)
       .insert({
         conference_id: ratingData.conference_id,
         accessibility_rating: ratingData.accessibility_rating ?? null,
         skill_improvement_rating: ratingData.skill_improvement_rating ?? null,
         finding_partners_rating: ratingData.finding_partners_rating ?? null,
-      } as any)
+      })
       .select()
       .single();
 
