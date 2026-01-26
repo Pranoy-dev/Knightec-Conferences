@@ -405,7 +405,7 @@ export async function createOrUpdateRating(ratingData: RatingFormData): Promise<
         accessibility_rating: ratingData.accessibility_rating ?? null,
         skill_improvement_rating: ratingData.skill_improvement_rating ?? null,
         finding_partners_rating: ratingData.finding_partners_rating ?? null,
-      })
+      } as any)
       .eq("conference_id", ratingData.conference_id)
       .select()
       .single();
@@ -424,7 +424,7 @@ export async function createOrUpdateRating(ratingData: RatingFormData): Promise<
         accessibility_rating: ratingData.accessibility_rating ?? null,
         skill_improvement_rating: ratingData.skill_improvement_rating ?? null,
         finding_partners_rating: ratingData.finding_partners_rating ?? null,
-      })
+      } as any)
       .select()
       .single();
 
