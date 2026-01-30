@@ -11,6 +11,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { AddConferenceForm } from "./AddConferenceForm";
 import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { formatCurrency, formatDateRange } from "@/lib/format";
 import type { ConferenceWithRating, Person, Office, Category } from "@/types";
 import { MapPin, Tag, User, Calendar, Ticket, ExternalLink, Edit, Star } from "lucide-react";
@@ -153,7 +158,18 @@ export function ConferenceDetailsModal({
                   Category
                 </p>
                 {conference.category ? (
-                  <Badge variant="outline" className="font-normal">{conference.category}</Badge>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Badge variant="outline" className="font-normal cursor-help">
+                        {conference.category.length > 33
+                          ? `${conference.category.slice(0, 33)}...`
+                          : conference.category}
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-xs text-sm">
+                      {conference.category}
+                    </TooltipContent>
+                  </Tooltip>
                 ) : (
                   <p className={`${fieldValueClass} text-muted-foreground`}>—</p>
                 )}

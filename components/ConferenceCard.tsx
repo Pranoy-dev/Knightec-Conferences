@@ -2,8 +2,14 @@
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { ConferenceWithRating, Person, Office } from "@/types";
-import { MapPin, Tag, User, ExternalLink, Star } from "lucide-react";
+import { formatDate } from "@/lib/format";
+import { MapPin, Tag, User, ExternalLink, Star, Calendar } from "lucide-react";
 import { RatingDisplay } from "@/components/ui/rating-display";
 
 interface ConferenceCardProps {
@@ -50,16 +56,43 @@ export function ConferenceCard({ conference, person, office, onClick }: Conferen
             </div>
           </div>
 
-          {/* Category */}
-          <div className="flex items-start gap-2">
-            <Tag className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm text-muted-foreground">Category</p>
-              <Badge variant="outline" className="mt-1">
-                {conference.category}
-              </Badge>
+          {/* Start date */}
+          {conference.start_date && (
+            <div className="flex items-start gap-2">
+              <Calendar className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-muted-foreground">Start date</p>
+                <p className="text-sm font-medium text-foreground mt-1">
+                  {formatDate(conference.start_date)}
+                </p>
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* Category - show up to "digital" length (~35 chars) then ... */}
+          {conference.category && (
+            <div className="flex items-start gap-2">
+              <Tag className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-muted-foreground">Category</p>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge
+                      variant="outline"
+                      className="mt-1 cursor-help"
+                    >
+                      {conference.category.length > 33
+                        ? `${conference.category.slice(0, 33)}...`
+                        : conference.category}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-xs text-sm">
+                    {conference.category}
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            </div>
+          )}
 
           {/* Assigned To */}
           {person && (
