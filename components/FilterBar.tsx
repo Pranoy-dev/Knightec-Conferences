@@ -164,10 +164,10 @@ export function FilterBar({
             <Calendar className="h-4 w-4" aria-hidden />
             Date
             {dateSortOrder === "asc" && (
-              <ArrowUp className="h-4 w-4 shrink-0" aria-hidden title="Ascending" />
+              <ArrowUp className="h-4 w-4 shrink-0" aria-hidden />
             )}
             {dateSortOrder === "desc" && (
-              <ArrowDown className="h-4 w-4 shrink-0" aria-hidden title="Descending" />
+              <ArrowDown className="h-4 w-4 shrink-0" aria-hidden />
             )}
           </Button>
         )}
