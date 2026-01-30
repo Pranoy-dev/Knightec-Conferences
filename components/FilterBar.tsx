@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SearchableSelect, type SearchableSelectOption } from "@/components/ui/searchable-select";
 import type { ConferenceFilters } from "@/types";
-import { X } from "lucide-react";
+import { X, Calendar, ArrowUp, ArrowDown } from "lucide-react";
 import { useMemo } from "react";
 import type { Person, Office } from "@/types";
 
@@ -14,6 +14,8 @@ interface FilterBarProps {
   categories: string[];
   people: Person[];
   offices: Office[];
+  dateSortOrder?: "off" | "asc" | "desc";
+  onDateSortOrderChange?: (order: "off" | "asc" | "desc") => void;
 }
 
 export function FilterBar({
@@ -22,7 +24,15 @@ export function FilterBar({
   categories,
   people,
   offices,
+  dateSortOrder = "off",
+  onDateSortOrderChange,
 }: FilterBarProps) {
+  const cycleDateSort = () => {
+    if (!onDateSortOrderChange) return;
+    if (dateSortOrder === "off") onDateSortOrderChange("asc");
+    else if (dateSortOrder === "asc") onDateSortOrderChange("desc");
+    else onDateSortOrderChange("off");
+  };
   const updateFilter = (key: keyof ConferenceFilters, value: string | undefined) => {
     onFiltersChange({
       ...filters,
@@ -133,6 +143,34 @@ export function FilterBar({
             </div>
           </div>
         </div>
+
+        {/* Sort by Date Button */}
+        {onDateSortOrderChange && (
+          <Button
+            variant="outline"
+            size="sm"
+            aria-pressed={dateSortOrder !== "off"}
+            aria-label={
+              dateSortOrder === "off"
+                ? "Date"
+                : dateSortOrder === "asc"
+                  ? "Date ascending (today to future)"
+                  : "Date descending"
+            }
+            onClick={cycleDateSort}
+            data-sort-by-date-button
+            className="h-10 text-sm gap-2 backdrop-blur-sm bg-background/60 border border-border/50 shadow-[2px_0_8px_rgba(0,0,0,0.06)] hover:shadow-[4px_0_12px_rgba(0,0,0,0.1)] hover:bg-background/80 transition-all duration-300"
+          >
+            <Calendar className="h-4 w-4" aria-hidden />
+            Date
+            {dateSortOrder === "asc" && (
+              <ArrowUp className="h-4 w-4 shrink-0" aria-hidden title="Ascending" />
+            )}
+            {dateSortOrder === "desc" && (
+              <ArrowDown className="h-4 w-4 shrink-0" aria-hidden title="Descending" />
+            )}
+          </Button>
+        )}
 
         {/* Clear Filters Button */}
         {hasActiveFilters && (

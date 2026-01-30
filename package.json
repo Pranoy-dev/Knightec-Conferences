@@ -3,14 +3,21 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "rm -f .next/dev/lock 2>/dev/null; NODE_OPTIONS='--unhandled-rejections=warn' next dev -H 127.0.0.1",
+    "dev:safe": "ulimit -n 10240 2>/dev/null; rm -f .next/dev/lock 2>/dev/null; NODE_OPTIONS='--unhandled-rejections=warn' next dev -H 127.0.0.1",
+    "dev:webpack": "NODE_OPTIONS='--unhandled-rejections=warn' next dev -H 127.0.0.1 --webpack",
+    "dev:fresh": "rm -f .next/dev/lock && npm run dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "setup-db": "node scripts/setup-db.js",
     "populate-categories": "node scripts/populate-categories.js",
     "seed-categories": "node scripts/seed-categories.js",
-    "seed-offices": "node scripts/seed-offices.js"
+    "seed-offices": "node scripts/seed-offices.js",
+    "import-conferences": "node scripts/import-conferences-from-csv.js",
+    "import-conferences-json": "node scripts/import-conferences-from-json.js",
+    "populate-events": "node scripts/populate-events-from-json.js",
+    "delete-all-conferences": "node scripts/delete-all-conferences.js"
   },
   "dependencies": {
     "@hookform/resolvers": "5.2.2",

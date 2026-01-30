@@ -1,0 +1,3 @@
+name,location,category,price,currency,start_date,end_date,event_link,notes,status,reason_to_go,office,assigned_to
+"Tech Summit 2025","Stockholm","AI",1500,SEK,2025-03-15,2025-03-16,https://example.com/tech-summit,,Interested,Learn latest AI trends,,john@example.com
+"Data Conference","Copenhagen","Data",800,EUR,2025-04-01,2025-04-02,,,Planned,,Stockholm,jane@example.com

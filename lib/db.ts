@@ -157,6 +157,9 @@ export async function createConference(conferenceData: ConferenceFormData): Prom
     notes: conferenceData.notes || null,
     status: conferenceData.status || null,
     reason_to_go: conferenceData.reason_to_go ?? null,
+    fee_link: conferenceData.fee_link?.trim() || null,
+    partnership: conferenceData.partnership?.trim() || null,
+    fee: conferenceData.fee?.trim() || null,
   };
   
   // Only add office_id if it's provided (column might not exist in older databases)
@@ -340,6 +343,9 @@ export async function updateConference(
     notes: conferenceData.notes || null,
     status: conferenceData.status || null,
     reason_to_go: conferenceData.reason_to_go ?? null,
+    fee_link: conferenceData.fee_link?.trim() || null,
+    partnership: conferenceData.partnership?.trim() || null,
+    fee: conferenceData.fee?.trim() || null,
   };
   
   // Only add office_id if it's provided (column might not exist in older databases)

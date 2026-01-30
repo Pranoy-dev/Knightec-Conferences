@@ -84,6 +84,9 @@ export function ConferenceDetailsModal({
               skill_improvement_rating: conference.rating?.skill_improvement_rating ?? null,
               finding_partners_rating: conference.rating?.finding_partners_rating ?? null,
               reason_to_go: conference.reason_to_go ?? null,
+              fee_link: conference.fee_link || "",
+              partnership: conference.partnership || "",
+              fee: conference.fee || "",
             }}
             selectedCategories={selectedCategories}
             selectedOffices={selectedOffices}
@@ -96,158 +99,237 @@ export function ConferenceDetailsModal({
     );
   }
 
+  const fieldLabelClass = "text-xs font-semibold uppercase tracking-wider text-muted-foreground";
+  const fieldValueClass = "text-sm text-foreground leading-relaxed";
+
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-2xl">{conference.name}</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-6 sm:p-8">
+        <DialogHeader className="space-y-1.5 pb-6 border-b">
+          <DialogTitle className="text-2xl font-bold tracking-tight">{conference.name}</DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
             Conference event details
           </DialogDescription>
         </DialogHeader>
-        
-        <div className="space-y-6 py-4">
-          {/* Details Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Location */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <MapPin className="h-4 w-4" />
-                <span className="text-sm font-medium">Location</span>
-              </div>
-              <a
-                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(conference.location)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm font-medium text-primary hover:underline"
-              >
-                {conference.location}
-              </a>
-            </div>
 
-            {/* Office */}
-            {office && (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <span className="text-sm font-medium">Office</span>
-                </div>
-                <Badge variant="default" className="bg-[#FFA600] text-white hover:bg-[#FFA600]/90">{office.name}</Badge>
+        <div className="space-y-8 pt-6">
+          {/* Section: Event info */}
+          <section className="space-y-5">
+            <h3 className="text-sm font-semibold text-foreground border-b pb-2">Event info</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="space-y-1.5">
+                <p className={fieldLabelClass}>
+                  <MapPin className="inline h-3.5 w-3.5 mr-1.5 -mt-0.5" aria-hidden />
+                  Location
+                </p>
+                {conference.location ? (
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(conference.location)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`${fieldValueClass} text-primary hover:underline block break-words`}
+                  >
+                    {conference.location}
+                  </a>
+                ) : (
+                  <p className={`${fieldValueClass} text-muted-foreground`}>—</p>
+                )}
               </div>
-            )}
 
-            {/* Category */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Tag className="h-4 w-4" />
-                <span className="text-sm font-medium">Category</span>
+              <div className="space-y-1.5">
+                <p className={fieldLabelClass}>Office</p>
+                {office ? (
+                  <Badge variant="default" className="bg-[#FFA600] text-white hover:bg-[#FFA600]/90 font-medium">
+                    {office.name}
+                  </Badge>
+                ) : (
+                  <p className={`${fieldValueClass} text-muted-foreground`}>—</p>
+                )}
               </div>
-              <Badge variant="outline">{conference.category}</Badge>
-            </div>
 
-            {/* Assigned To */}
-            {person && (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <User className="h-4 w-4" />
-                  <span className="text-sm font-medium">Assigned To</span>
-                </div>
-                <p className="text-sm font-medium">{person.name}</p>
+              <div className="space-y-1.5">
+                <p className={fieldLabelClass}>
+                  <Tag className="inline h-3.5 w-3.5 mr-1.5 -mt-0.5" aria-hidden />
+                  Category
+                </p>
+                {conference.category ? (
+                  <Badge variant="outline" className="font-normal">{conference.category}</Badge>
+                ) : (
+                  <p className={`${fieldValueClass} text-muted-foreground`}>—</p>
+                )}
               </div>
-            )}
 
-            {/* Price */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Ticket className="h-4 w-4" />
-                <span className="text-sm font-medium">Price</span>
-              </div>
-              <p className="text-sm font-medium">{formatCurrency(conference.price, conference.currency || "SEK")}</p>
-            </div>
-
-            {/* Dates */}
-            {(conference.start_date || conference.end_date) && (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Calendar className="h-4 w-4" />
-                  <span className="text-sm font-medium">Date</span>
-                </div>
-                <p className="text-sm font-medium">
-                  {formatDateRange(conference.start_date, conference.end_date)}
+              <div className="space-y-1.5">
+                <p className={fieldLabelClass}>
+                  <User className="inline h-3.5 w-3.5 mr-1.5 -mt-0.5" aria-hidden />
+                  Assigned to
+                </p>
+                <p className={person ? fieldValueClass : `${fieldValueClass} text-muted-foreground`}>
+                  {person ? person.name : "—"}
                 </p>
               </div>
-            )}
 
-            {/* Status */}
-            {conference.status && (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <span className="text-sm font-medium">Status</span>
-                </div>
-                <Badge variant="outline">{conference.status}</Badge>
+              <div className="space-y-1.5">
+                <p className={fieldLabelClass}>
+                  <Ticket className="inline h-3.5 w-3.5 mr-1.5 -mt-0.5" aria-hidden />
+                  Price
+                </p>
+                <p className={fieldValueClass}>{formatCurrency(conference.price, conference.currency || "SEK")}</p>
               </div>
-            )}
-          </div>
 
-          {/* Event Link */}
-          {conference.event_link && (
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <ExternalLink className="h-4 w-4" />
-                <span className="text-sm font-medium">Event Link</span>
+              <div className="space-y-1.5">
+                <p className={fieldLabelClass}>
+                  <Calendar className="inline h-3.5 w-3.5 mr-1.5 -mt-0.5" aria-hidden />
+                  Date
+                </p>
+                <p className={(conference.start_date || conference.end_date) ? fieldValueClass : `${fieldValueClass} text-muted-foreground`}>
+                  {(conference.start_date || conference.end_date)
+                    ? formatDateRange(conference.start_date, conference.end_date)
+                    : "—"}
+                </p>
               </div>
-              <a
-                href={conference.event_link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary hover:underline text-sm font-medium flex items-center gap-1"
-              >
-                {conference.event_link}
-                <ExternalLink className="h-3 w-3" />
-              </a>
+
+              <div className="space-y-1.5 md:col-span-2">
+                <p className={fieldLabelClass}>Status</p>
+                {conference.status ? (
+                  <Badge variant="outline" className="font-normal">{conference.status}</Badge>
+                ) : (
+                  <p className={`${fieldValueClass} text-muted-foreground`}>—</p>
+                )}
+              </div>
             </div>
-          )}
+          </section>
 
-          {/* Reason to Go */}
-          {conference.reason_to_go && (
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <span className="text-sm font-medium">Reason to Go</span>
+          {/* Section: Links & description */}
+          <section className="space-y-5">
+            <h3 className="text-sm font-semibold text-foreground border-b pb-2">Links & description</h3>
+            <div className="space-y-5">
+              <div className="space-y-1.5">
+                <p className={fieldLabelClass}>
+                  <ExternalLink className="inline h-3.5 w-3.5 mr-1.5 -mt-0.5" aria-hidden />
+                  Event link
+                </p>
+                {conference.event_link ? (
+                  <a
+                    href={conference.event_link.split(/\s+/)[0]}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`${fieldValueClass} text-primary hover:underline break-all block`}
+                  >
+                    {conference.event_link}
+                    <ExternalLink className="inline h-3 w-3 ml-1 shrink-0" aria-hidden />
+                  </a>
+                ) : (
+                  <p className={`${fieldValueClass} text-muted-foreground`}>—</p>
+                )}
               </div>
-              <p className="text-sm text-foreground whitespace-pre-line">{conference.reason_to_go}</p>
+
+              <div className="space-y-1.5">
+                <p className={fieldLabelClass}>Notes</p>
+                {conference.notes ? (
+                  <p className={`${fieldValueClass} whitespace-pre-line`}>{conference.notes}</p>
+                ) : (
+                  <p className={`${fieldValueClass} text-muted-foreground`}>—</p>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <p className={fieldLabelClass}>Reason to go</p>
+                {conference.reason_to_go ? (
+                  <p className={`${fieldValueClass} whitespace-pre-line`}>{conference.reason_to_go}</p>
+                ) : (
+                  <p className={`${fieldValueClass} text-muted-foreground`}>—</p>
+                )}
+              </div>
             </div>
-          )}
+          </section>
 
-          {/* Ratings */}
-          {conference.rating && (conference.rating.accessibility_rating || conference.rating.skill_improvement_rating || conference.rating.finding_partners_rating) && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Star className="h-4 w-4" />
-                <span className="text-sm font-medium">Ratings</span>
+          {/* Section: Registration & fees */}
+          <section className="space-y-5">
+            <h3 className="text-sm font-semibold text-foreground border-b pb-2">Registration & fees</h3>
+            <div className="space-y-5">
+              <div className="space-y-1.5">
+                <p className={fieldLabelClass}>
+                  <ExternalLink className="inline h-3.5 w-3.5 mr-1.5 -mt-0.5" aria-hidden />
+                  Fee link
+                </p>
+                {conference.fee_link ? (
+                  <a
+                    href={conference.fee_link.split(/\s+/)[0]}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`${fieldValueClass} text-primary hover:underline break-all block`}
+                  >
+                    {conference.fee_link}
+                    <ExternalLink className="inline h-3 w-3 ml-1 shrink-0" aria-hidden />
+                  </a>
+                ) : (
+                  <p className={`${fieldValueClass} text-muted-foreground`}>—</p>
+                )}
               </div>
+
+              <div className="space-y-1.5">
+                <p className={fieldLabelClass}>Partnership</p>
+                {conference.partnership ? (
+                  <p className={`${fieldValueClass} whitespace-pre-line`}>{conference.partnership}</p>
+                ) : (
+                  <p className={`${fieldValueClass} text-muted-foreground`}>—</p>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <p className={fieldLabelClass}>Fee</p>
+                {conference.fee ? (
+                  <p className={`${fieldValueClass} whitespace-pre-line`}>{conference.fee}</p>
+                ) : (
+                  <p className={`${fieldValueClass} text-muted-foreground`}>—</p>
+                )}
+              </div>
+            </div>
+          </section>
+
+          {/* Section: Ratings */}
+          <section className="space-y-4">
+            <h3 className="text-sm font-semibold text-foreground border-b pb-2">
+              <Star className="inline h-3.5 w-3.5 mr-1.5 -mt-0.5" aria-hidden />
+              Ratings
+            </h3>
+            {conference.rating &&
+            (conference.rating.accessibility_rating ||
+              conference.rating.skill_improvement_rating ||
+              conference.rating.finding_partners_rating) ? (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {conference.rating.accessibility_rating && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Accessibility</p>
+                <div className="space-y-2">
+                  <p className={fieldLabelClass}>Accessibility</p>
+                  {conference.rating.accessibility_rating ? (
                     <RatingDisplay value={conference.rating.accessibility_rating} />
-                  </div>
-                )}
-                {conference.rating.skill_improvement_rating && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Skill Improvement</p>
+                  ) : (
+                    <p className={`${fieldValueClass} text-muted-foreground`}>—</p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <p className={fieldLabelClass}>Skill improvement</p>
+                  {conference.rating.skill_improvement_rating ? (
                     <RatingDisplay value={conference.rating.skill_improvement_rating} />
-                  </div>
-                )}
-                {conference.rating.finding_partners_rating && (
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Finding Partners</p>
+                  ) : (
+                    <p className={`${fieldValueClass} text-muted-foreground`}>—</p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <p className={fieldLabelClass}>Finding partners</p>
+                  {conference.rating.finding_partners_rating ? (
                     <RatingDisplay value={conference.rating.finding_partners_rating} />
-                  </div>
-                )}
+                  ) : (
+                    <p className={`${fieldValueClass} text-muted-foreground`}>—</p>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            ) : (
+              <p className={`${fieldValueClass} text-muted-foreground`}>—</p>
+            )}
+          </section>
 
-          {/* Edit Button */}
+          {/* Edit button */}
           <div className="flex justify-end pt-4 border-t">
             <Button onClick={handleEdit} className="gap-2 bg-[#FFA600] text-white hover:bg-[#FFA600]/90">
               <Edit className="h-4 w-4" />

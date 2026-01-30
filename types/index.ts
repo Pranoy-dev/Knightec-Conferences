@@ -21,6 +21,9 @@ export type Conference = {
   notes: string | null;
   status: "Interested" | "Planned" | "Booked" | "Attended" | null;
   reason_to_go: string | null;
+  fee_link: string | null;
+  partnership: string | null;
+  fee: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -57,6 +60,9 @@ export type ConferenceFormData = {
   notes?: string;
   status?: "Interested" | "Planned" | "Booked" | "Attended";
   reason_to_go?: string | null;
+  fee_link?: string | null;
+  partnership?: string | null;
+  fee?: string | null;
   accessibility_rating?: number | null;
   skill_improvement_rating?: number | null;
   finding_partners_rating?: number | null;

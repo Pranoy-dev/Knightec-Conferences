@@ -67,6 +67,9 @@ export interface AddConferenceFormProps {
     skill_improvement_rating: number | null;
     finding_partners_rating: number | null;
     reason_to_go: string | null;
+    fee_link: string;
+    partnership: string;
+    fee: string;
   }>;
   selectedCategories?: string[];
   onCategoriesChange?: (categories: string[]) => void;
@@ -96,9 +99,9 @@ export function AddConferenceForm({
   const scrapeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [currency, setCurrency] = useState<string>(initialData?.currency || "SEK"); // Default currency
   const [openSections, setOpenSections] = useState({
-    eventDetails: false,
+    eventDetails: true,
     knightecInfo: false,
-    datePrice: false,
+    datePrice: true,
     ratings: false,
   });
 
@@ -126,6 +129,9 @@ export function AddConferenceForm({
       skill_improvement_rating: initialData?.skill_improvement_rating ?? null,
       finding_partners_rating: initialData?.finding_partners_rating ?? null,
       reason_to_go: initialData?.reason_to_go ?? null,
+      fee_link: initialData?.fee_link || "",
+      partnership: initialData?.partnership || "",
+      fee: initialData?.fee || "",
     },
   });
 
@@ -138,13 +144,10 @@ export function AddConferenceForm({
   // Check if Knightec Info section is complete (mandatory)
   const isKnightecInfoComplete = !!(watchedValues.assigned_to && selectedCategories.length > 0);
   
-  // Check if Ratings section is complete (mandatory - at least one rating required)
-  const hasAtLeastOneRating = !!(watchedValues.accessibility_rating || 
-                                  watchedValues.skill_improvement_rating || 
-                                  watchedValues.finding_partners_rating);
+  // Ratings are optional - no validation required
 
   // Check if all mandatory sections are complete
-  const isFormValid = isEventDetailsComplete && isKnightecInfoComplete && hasAtLeastOneRating;
+  const isFormValid = isEventDetailsComplete && isKnightecInfoComplete;
 
   // Auto-open sections based on completion (progressive disclosure)
   useEffect(() => {
@@ -190,6 +193,9 @@ export function AddConferenceForm({
         skill_improvement_rating: initialData.skill_improvement_rating ?? null,
         finding_partners_rating: initialData.finding_partners_rating ?? null,
         reason_to_go: initialData.reason_to_go ?? null,
+        fee_link: initialData.fee_link || "",
+        partnership: initialData.partnership || "",
+        fee: initialData.fee || "",
       });
     }
   }, [initialData, form]);
@@ -405,6 +411,9 @@ export function AddConferenceForm({
         skill_improvement_rating: data.skill_improvement_rating ?? null,
         finding_partners_rating: data.finding_partners_rating ?? null,
         reason_to_go: data.reason_to_go?.trim() || null,
+        fee_link: data.fee_link?.trim() || undefined,
+        partnership: data.partnership?.trim() || undefined,
+        fee: data.fee?.trim() || undefined,
       };
 
       if (conferenceId) {
@@ -420,6 +429,9 @@ export function AddConferenceForm({
         form.setValue("skill_improvement_rating", null);
         form.setValue("finding_partners_rating", null);
         form.setValue("reason_to_go", null);
+        form.setValue("fee_link", "");
+        form.setValue("partnership", "");
+        form.setValue("fee", "");
       }
       onSuccess?.();
     } catch (error) {
@@ -593,6 +605,27 @@ export function AddConferenceForm({
                 </FormItem>
               )}
             />
+
+            {/* Partnership */}
+            <FormField
+              control={form.control}
+              name="partnership"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Partnership</FormLabel>
+                  <FormControl>
+                    <textarea
+                      {...field}
+                      value={field.value || ""}
+                      rows={2}
+                      placeholder="Enter partnership note..."
+                      className="flex min-h-[60px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </CollapsibleContent>
         </Collapsible>
 
@@ -744,6 +777,47 @@ export function AddConferenceForm({
               />
             </div>
 
+            {/* Fee Link */}
+            <FormField
+              control={form.control}
+              name="fee_link"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Fee Link</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="url"
+                      placeholder="https://example.com/registration"
+                      {...field}
+                      value={field.value || ""}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Fee (note about fee) */}
+            <FormField
+              control={form.control}
+              name="fee"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Fee</FormLabel>
+                  <FormControl>
+                    <textarea
+                      {...field}
+                      value={field.value || ""}
+                      rows={2}
+                      placeholder="Enter note about fee..."
+                      className="flex min-h-[60px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             {/* Start and End Date */}
             <div className="grid grid-cols-2 gap-4">
               <FormField
@@ -808,7 +882,7 @@ export function AddConferenceForm({
           onOpenChange={(open) => setOpenSections({ ...openSections, ratings: open })}
         >
           <CollapsibleTrigger className="flex w-full items-center justify-between rounded-lg border bg-muted/50 px-4 py-3 text-left font-semibold hover:bg-muted transition-colors">
-            <span>Ratings <span className="text-destructive">*</span></span>
+            <span>Ratings</span>
             {openSections.ratings ? (
               <ChevronDown className="h-4 w-4" />
             ) : (
@@ -913,7 +987,7 @@ export function AddConferenceForm({
         </div>
         {!isFormValid && (
           <p className="text-xs text-muted-foreground text-right mt-2">
-            Please complete all mandatory sections: Event Details, Knightec Info, and Ratings
+            Please complete all mandatory sections: Event Details and Knightec Info
           </p>
         )}
       </form>

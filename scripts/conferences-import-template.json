@@ -1,0 +1,29 @@
+[
+  {
+    "name": "Tech Summit 2025",
+    "location": "Stockholm",
+    "category": "AI",
+    "price": 1500,
+    "currency": "SEK",
+    "start_date": "2025-03-15",
+    "end_date": "2025-03-16",
+    "event_link": "https://example.com/tech-summit",
+    "notes": "",
+    "status": "Interested",
+    "reason_to_go": "Learn latest AI trends",
+    "office": "Stockholm",
+    "assigned_to": "john@example.com"
+  },
+  {
+    "name": "Data Conference",
+    "location": "Copenhagen",
+    "category": "Data",
+    "price": 800,
+    "currency": "EUR",
+    "start_date": "2025-04-01",
+    "end_date": "2025-04-02",
+    "status": "Planned",
+    "office": "Stockholm",
+    "assigned_to": "jane@example.com"
+  }
+]

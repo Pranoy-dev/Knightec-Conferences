@@ -108,6 +108,17 @@ CREATE POLICY IF NOT EXISTS "Allow all operations on ratings" ON ratings
 ALTER TABLE conferences
 ADD COLUMN IF NOT EXISTS reason_to_go TEXT;
 
+-- Migration 005: Add fee_link, partnership, fee columns to conferences
+-- ============================================
+ALTER TABLE conferences
+  ADD COLUMN IF NOT EXISTS fee_link TEXT,
+  ADD COLUMN IF NOT EXISTS partnership TEXT,
+  ADD COLUMN IF NOT EXISTS fee TEXT;
+
+COMMENT ON COLUMN conferences.fee_link IS 'URL to registration/fee page';
+COMMENT ON COLUMN conferences.partnership IS 'Partnership note';
+COMMENT ON COLUMN conferences.fee IS 'Note about fee';
+
 -- ============================================
 -- Migration complete!
 -- ============================================

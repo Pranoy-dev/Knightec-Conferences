@@ -49,6 +49,9 @@ export interface Database {
           notes: string | null;
           status: "Interested" | "Planned" | "Booked" | "Attended" | null;
           reason_to_go: string | null;
+          fee_link: string | null;
+          partnership: string | null;
+          fee: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -67,6 +70,9 @@ export interface Database {
           notes?: string | null;
           status?: "Interested" | "Planned" | "Booked" | "Attended" | null;
           reason_to_go?: string | null;
+          fee_link?: string | null;
+          partnership?: string | null;
+          fee?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -85,6 +91,9 @@ export interface Database {
           notes?: string | null;
           status?: "Interested" | "Planned" | "Booked" | "Attended" | null;
           reason_to_go?: string | null;
+          fee_link?: string | null;
+          partnership?: string | null;
+          fee?: string | null;
           created_at?: string;
           updated_at?: string;
         };

@@ -11,17 +11,13 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 
-interface HomeProps {
-  params?: Promise<Record<string, string | string[]>>;
-  searchParams?: Promise<Record<string, string | string[]>>;
-}
-
-export default function Home(_props: HomeProps) {
+export default function Home() {
   const [conferences, setConferences] = useState<ConferenceWithRating[]>([]);
   const [people, setPeople] = useState<Person[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [offices, setOffices] = useState<Office[]>([]);
   const [filters, setFilters] = useState<ConferenceFilters>({});
+  const [dateSortOrder, setDateSortOrder] = useState<"off" | "asc" | "desc">("asc");
   const [loading, setLoading] = useState(true);
 
   const loadData = async () => {
@@ -69,8 +65,28 @@ export default function Home(_props: HomeProps) {
       filtered = filtered.filter((c) => c.assigned_to === filters.assigned_to);
     }
 
+    // Sort by date (from today onwards)
+    if (dateSortOrder !== "off") {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const ascending = dateSortOrder === "asc";
+
+      filtered = filtered
+        .filter((c) => {
+          if (!c.start_date) return false;
+          const startDate = new Date(c.start_date);
+          startDate.setHours(0, 0, 0, 0);
+          return startDate >= today;
+        })
+        .sort((a, b) => {
+          const dateA = a.start_date ? new Date(a.start_date).getTime() : Infinity;
+          const dateB = b.start_date ? new Date(b.start_date).getTime() : Infinity;
+          return ascending ? dateA - dateB : dateB - dateA;
+        });
+    }
+
     return filtered;
-  }, [conferences, filters, offices]);
+  }, [conferences, filters, offices, dateSortOrder]);
 
   if (loading) {
     return (
@@ -120,11 +136,13 @@ export default function Home(_props: HomeProps) {
         categories={categories}
         people={people}
         offices={offices}
+        dateSortOrder={dateSortOrder}
+        onDateSortOrderChange={setDateSortOrder}
       />
 
       {/* Conferences List */}
       <div>
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4 gap-3">
           <h2 className="text-lg font-semibold tracking-tight">
             {filteredConferences.length} {filteredConferences.length === 1 ? "conference" : "conferences"}
           </h2>

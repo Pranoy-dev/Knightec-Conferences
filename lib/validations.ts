@@ -77,6 +77,14 @@ export const conferenceSchema = z.object({
   skill_improvement_rating: z.number().int().min(1).max(5).nullable().optional(),
   finding_partners_rating: z.number().int().min(1).max(5).nullable().optional(),
   reason_to_go: z.string().max(500).nullable().optional(),
+  fee_link: z
+    .string()
+    .optional()
+    .refine((val) => !val || val === "" || z.string().url().safeParse(val).success, {
+      message: "Invalid URL",
+    }),
+  partnership: z.string().optional(),
+  fee: z.string().optional(),
 });
 
 // Form value types - use output types (what we get after validation)
